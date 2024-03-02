@@ -25,16 +25,19 @@ class STT():
     def transcribe(self, audio_filename):
         segments, info = self.model.transcribe(audio_filename, beam_size=5)
         print("Detected language '%s' with probability %f" % (info.language, info.language_probability))
+        segment_list = []
         for segment in segments:
+            segment_list.append(segment.text)
             print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
-        return segments.text
+        return segment_list
         
 
 def main():
     stt = STT()
     stt.record_audio()
     time1 = time.time()
-    stt.transcribe("tmp/audio.mp3")
+    text = stt.transcribe("tmp/audio.mp3")
+    print(text)
     time2 = time.time()
     print("Time taken: ", time2-time1)
 
