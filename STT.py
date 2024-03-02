@@ -1,0 +1,47 @@
+from faster_whisper import WhisperModel
+import sounddevice as sd
+import soundfile as sf
+import os
+import time
+
+model_size = "large-v3"
+
+class STT():
+    def __init__(self,model_size="small.en"):
+        print("Loading model...")
+        self.model = WhisperModel(model_size, device="cuda", compute_type="float16")
+        print("Model loaded")
+
+    def record_audio(self, duration=5, sample_rate=44100, save_location=os.path.join("tmp","audio.mp3")):
+        
+        frames = int(duration * sample_rate)
+        print("Recording audio for ", duration, " seconds")
+        audio = sd.rec(frames, samplerate=sample_rate, channels=1)
+        sd.wait()
+        sf.write(save_location, audio, sample_rate)
+        print("Audio saved as: ", save_location)
+    
+    def transcribe(self, audio_filename):
+        segments, info = self.model.transcribe(audio_filename, beam_size=5)
+        print("Detected language '%s' with probability %f" % (info.language, info.language_probability))
+        for segment in segments:
+            print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
+
+def main():
+    stt = STT()
+    stt.record_audio()
+    time1 = time.time()
+    stt.transcribe("tmp/audio.mp3")
+    time2 = time.time()
+    print("Time taken: ", time2-time1)
+
+if __name__ == "__main__":
+    main()
+    
+    def record_audio(duration=5, sample_rate=44100, save_location=os.path.join("tmp","audio.mp3")):
+        frames = int(duration * 60)
+        print("Recording audio for ", duration, " seconds")
+        audio = sd.rec(frames, samplerate=sample_rate, channels=1)
+        sd.wait()
+        sf.write(save_location, audio, sample_rate)
+        print("Audio saved as: ", save_location)
