@@ -2,3 +2,7 @@ pyaut0gui=0.9.54
 pynput
 mouse
 pywin32
+soundcloud
+playsound
+soundfile
+faster_Whisper

@@ -3,6 +3,7 @@ import numpy as np
 import time
 import HandTracking as ht
 import os
+import sys
 if os.name == 'nt': import win32api
 else: from AppKit import NSScreen
 import time
@@ -143,13 +144,16 @@ while True:
             print("snappp")
             lammo=True    
             webbrowser.open("https://www.youtube.com/watch?v=hw2eOKy5w9g&pp=ygUQbW91bnRhaW4gZGV3IGRhcg%3D%3D", new=2)
+        elif fingers[0]== 0 and fingers[1]==1 and fingers[2]==1 and fingers[3]==1 and fingers[4]==0:
+            print("ppp") 
+            os.system(r"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Tera Term\Tera Term.lnk")
 
         elif fingers[0] == 0 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
             length, img, lineInfo = detector.findDistance(16, 20, img)
             if length > 60:
                 exit()
 
-        elif fingers[0] == 0 and fingers[1] == 1 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
+        elif fingers[0] == 0 and fingers[1] == 1 and fingers[2] == 0 and fingers[3] == 1 and fingers[4] == 0:
             length, img, lineInfo = detector.findDistance(4, 8, img)
             if length > 60:
                 speech.record_audio()
