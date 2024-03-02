@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
     recorder_config = {
         'spinner': False,
-        'model': 'large-v2',
+        'model': 'small',
         'language': 'en',
         'silero_sensitivity': 0.4,
         'webrtc_sensitivity': 2,
