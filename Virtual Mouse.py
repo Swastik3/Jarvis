@@ -65,13 +65,13 @@ while True:
             prev_x, prev_y = curr_x, curr_y
             length, img, lineInfo = detector.findDistance(4, 8, img)
 
-            if length < 60:     # If both fingers are really close to each other
+            if length < 40:     # If both fingers are really close to each other
                 cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
                 #autopy.mouse.click()    # Perform Click
                 mouse.click()
                 print("click")
-                time.sleep(0.25)
-                if length < 40:
+                time.sleep(0.35)
+                if length < 30:
                     cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
                     #autopy.mouse.click()    # Perform Click
                     mouse.click()
@@ -118,14 +118,14 @@ while True:
                 mouse.release(button = "left")
                 flag = 0
 
-            x3 = np.interp(x5, (frameR,width-frameR), (0,screen_width))
-            y3 = np.interp(y5, (frameR, height-frameR), (0, screen_height))
+            cursor_x = np.interp(x3, (frameR,width-frameR), (0,screen_width))
+            cursor_y = np.interp(y3, (frameR, height-frameR), (0, screen_height))
 
-            curr_x = prev_x + (x3 - prev_x)/smoothening
-            curr_y = prev_y + (y3 - prev_y) / smoothening
+            curr_x = prev_x + (cursor_x - prev_x)/smoothening
+            curr_y = prev_y + (cursor_y - prev_y) / smoothening
 
             mouse.move(screen_width - curr_x,curr_y)
-            cv2.circle(img, (x5, y5), 7, (255, 0, 255), cv2.FILLED)
+            cv2.circle(img, (x3, y3), 7, (255, 0, 255), cv2.FILLED)
             prev_x, prev_y = curr_x, curr_y
 
         elif fingers[2]== 1 and fingers[0]==1 and fingers[4]==1 and fingers[3]==0 and fingers[1]==0 and lammo==False:
@@ -133,8 +133,10 @@ while True:
             lammo=True    
             webbrowser.open("https://www.youtube.com/watch?v=hw2eOKy5w9g&pp=ygUQbW91bnRhaW4gZGV3IGRhcg%3D%3D", new=2)
 
-        elif fingers[0] == 0 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 1 and fingers[4] == 1:
-             exit()
+        elif fingers[0] == 0 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
+            length, img, lineInfo = detector.findDistance(16, 20, img)
+            if length > 60:
+                exit()
 
         elif fingers[0] == 0 and fingers[1] == 1 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
             length, img, lineInfo = detector.findDistance(4, 8, img)
@@ -149,8 +151,8 @@ while True:
                 kb.press(Key.enter)
 
         elif all(lmlist[i][2] > 0 for i in [8, 12, 16, 20]):
-            cursor_x = np.interp(x1, (frameR, width - frameR), (0, screen_width))
-            cursor_y = np.interp(y1, (frameR, height - frameR), (0, screen_height))
+            cursor_x = np.interp(x3, (frameR, width - frameR), (0, screen_width))
+            cursor_y = np.interp(y3, (frameR, height - frameR), (0, screen_height))
 
             curr_x = prev_x + (cursor_x - prev_x) / smoothening
             curr_y = prev_y + (cursor_y - prev_y) / smoothening
