@@ -14,8 +14,8 @@ from STT import STT
 
 ### Variables Declaration
 pTime = 0               # Used to calculate frame rate
-width = 1333             # Width of Camera
-height = 1000          # Height of Camera
+width = 640             # Width of Camera
+height = 480          # Height of Camera
 frameR = 100            # Frame Rate
 smoothening = 8         # Smoothening Factor
 prev_x, prev_y = 0, 0   # Previous coordinates
@@ -54,14 +54,14 @@ while True:
         fingers = detector.fingersUp()      # Checking if fingers are upwards
         cv2.rectangle(img, (frameR, frameR), (width - frameR, height - frameR), (255, 0, 255), 2)   # Creating boundary box
         if fingers[1] == 1 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 0:     # If fore finger is up and middle finger is down
-            cursor_x = np.interp(x1, (frameR,width-frameR), (0,screen_width))
-            cursor_y = np.interp(y1, (frameR, height-frameR), (0, screen_height))
+            cursor_x = np.interp(x3, (frameR,width-frameR), (0,screen_width))
+            cursor_y = np.interp(y3, (frameR, height-frameR), (0, screen_height))
 
-            curr_x = prev_x + (cursor_x - prev_x)/smoothening
-            curr_y = prev_y + (cursor_y - prev_y) / smoothening
+            curr_x = (prev_x + (cursor_x - prev_x)/smoothening)
+            curr_y = (prev_y + (cursor_y - prev_y) / smoothening)
 
             mouse.move(screen_width - curr_x,curr_y)
-            cv2.circle(img, (x1, y1), 7, (255, 0, 255), cv2.FILLED)
+            cv2.circle(img, (x3, y3), 7, (255, 0, 255), cv2.FILLED)
             prev_x, prev_y = curr_x, curr_y
             length, img, lineInfo = detector.findDistance(4, 8, img)
 
@@ -70,8 +70,8 @@ while True:
                 #autopy.mouse.click()    # Perform Click
                 mouse.click()
                 print("click")
-                time.sleep(0.15)
-                if length < 35:
+                time.sleep(0.25)
+                if length < 40:
                     cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
                     #autopy.mouse.click()    # Perform Click
                     mouse.click()
@@ -136,7 +136,7 @@ while True:
         elif fingers[0] == 0 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 1 and fingers[4] == 1:
              exit()
 
-        elif fingers[0] == 1 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 0:
+        elif fingers[0] == 0 and fingers[1] == 1 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
             length, img, lineInfo = detector.findDistance(4, 8, img)
             if length > 60:
                 speech.record_audio()
