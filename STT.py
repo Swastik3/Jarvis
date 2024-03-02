@@ -9,7 +9,7 @@ model_size = "large-v3"
 class STT():
     def __init__(self,model_size="small.en"):
         print("Loading model...")
-        self.model = WhisperModel(model_size, device="cuda", compute_type="float16")
+        self.model = WhisperModel(model_size, device="cpu", compute_type="int8")
         print("Model loaded")
         self.audio = None
 
@@ -22,7 +22,7 @@ class STT():
         sf.write(save_location, audio, sample_rate)
         print("Audio saved as: ", save_location)
     
-    def transcribe(self, audio_filename=os.path.join("tmp","audio.mp3")):
+    def transcribe(self, audio_filename = os.path.join("tmp","audio.mp3")):
         segments, info = self.model.transcribe(audio_filename, beam_size=5)
         print("Detected language '%s' with probability %f" % (info.language, info.language_probability))
         segment_list = []
