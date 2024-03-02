@@ -53,6 +53,79 @@ except:
     screen_width = frame.size.width
     screen_height = frame.size.height
    # Getting the screen size
+
+def arduino_control():
+    global pTime, curr_x, curr_y, prev_x, prev_y
+    global width, height, frameR, smoothening, prev_x_swipe, prev_y_swipe, curr_x_swipe, curr_y_swipe, flag, slide_counter, lammo, dammo
+    while True:
+        success, img = cap.read()
+        img = detector.findHands(img)                       # Finding the hand
+        lmlist, bbox = detector.findPosition(img)           # Getting position of hand
+
+        if len(lmlist)!=0:
+            x1, y1 = lmlist[8][1:]
+            x2, y2 = lmlist[12][1:]
+            x3, y3 = lmlist[16][1:]
+            x4, y4 = lmlist[20][1:]
+            x5, y5 = lmlist[20][1:]
+
+            fingers = detector.fingersUp()      # Checking if fingers are upwards
+            cv2.rectangle(img, (frameR, frameR), (width - frameR, height - frameR), (255, 0, 255), 2)   # Creating boundary box
+
+            if fingers[1] == 1 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 0:     # If fore finger is up and middle finger is down
+                cursor_x = np.interp(x3, (frameR,width-frameR), (0,screen_width))
+                cursor_y = np.interp(y3, (frameR, height-frameR), (0, screen_height))
+
+                print(bbox)
+
+                curr_x = (prev_x + (cursor_x - prev_x)/smoothening)
+                curr_y = (prev_y + (cursor_y - prev_y) / smoothening)
+
+                action.move(screen_width - curr_x,curr_y)
+                cv2.circle(img, (x3, y3), 7, (255, 0, 255), cv2.FILLED)
+                prev_x, prev_y = curr_x, curr_y
+                length, img, lineInfo = detector.findDistance(4, 8, img)
+
+                if length < 40:     # If both fingers are really close to each other
+                    cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
+                    #autopy.action.click()    # Perform Click
+                    action.click()
+                    print("click")
+                    time.sleep(0.35)
+                    if length < 25:
+                        cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
+                        #autopy.action.click()    # Perform Click
+                        action.click()
+                        print("click")
+                    else:
+                        time.sleep(0.25)
+
+            elif fingers[0] == 0 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 0 and fingers[4] == 0:     # If fore finger & middle finger both are up
+                length, img, lineInfo = detector.findDistance(8, 12, img)
+
+                if length < 40:
+                    print("pressing a")
+                    kb.press("a")
+                    time.sleep(0.1)
+                elif length > 80:
+                    print("pressing d")
+                    kb.press("d")
+                    time.sleep(0.1)
+
+            elif fingers[0] == 0 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
+                length, img, lineInfo = detector.findDistance(16, 20, img)
+                if length > 60:
+                    print("exiting")
+                    dammo = False
+                    return
+
+        cTime = time.time()
+        fps = 1/(cTime-pTime)
+        pTime = cTime
+        cv2.putText(img, str(int(fps)), (20, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
+        cv2.imshow("Image", img)
+        cv2.waitKey(1)
+
 while True:
     success, img = cap.read()
     img = detector.findHands(img)                       # Finding the hand
@@ -152,7 +225,9 @@ while True:
         elif fingers[0]== 1 and fingers[1]==1 and fingers[2]==1 and fingers[3]==1 and fingers[4]==0 and dammo==False:
             print("ppp") 
             dammo=True
-            subprocess.run(r'"Tera Term.lnk"')
+            #subprocess.run(r'"Tera Term.lnk"')
+            arduino_control()
+            time.sleep(0.5)
 
         elif fingers[0] == 0 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
             length, img, lineInfo = detector.findDistance(16, 20, img)
@@ -198,3 +273,5 @@ while True:
     cv2.putText(img, str(int(fps)), (20, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
     cv2.imshow("Image", img)
     cv2.waitKey(1)
+
+
