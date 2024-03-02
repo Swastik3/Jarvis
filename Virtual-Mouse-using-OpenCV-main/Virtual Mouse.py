@@ -129,7 +129,9 @@ while True:
             print("snappp")
             lammo=True    
             webbrowser.open("https://www.youtube.com/watch?v=hw2eOKy5w9g&pp=ygUQbW91bnRhaW4gZGV3IGRhcg%3D%3D", new=2)
-
+            
+        elif fingers[0] == 0 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 1 and fingers[4] == 1:
+             exit()
         elif all(lmlist[i][2] > 0 for i in [8, 12, 16, 20]):
             cursor_x = np.interp(x1, (frameR, width - frameR), (0, screen_width))
             cursor_y = np.interp(y1, (frameR, height - frameR), (0, screen_height))
