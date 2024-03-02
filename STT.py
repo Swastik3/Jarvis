@@ -11,6 +11,7 @@ class STT():
         print("Loading model...")
         self.model = WhisperModel(model_size, device="cuda", compute_type="float16")
         print("Model loaded")
+        self.audio = None
 
     def record_audio(self, duration=5, sample_rate=44100, save_location=os.path.join("tmp","audio.mp3")):
         
@@ -26,6 +27,8 @@ class STT():
         print("Detected language '%s' with probability %f" % (info.language, info.language_probability))
         for segment in segments:
             print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
+        return segments.text
+        
 
 def main():
     stt = STT()
