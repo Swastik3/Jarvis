@@ -69,6 +69,8 @@ while True:
             cursor_x = np.interp(x3, (frameR,width-frameR), (0,screen_width))
             cursor_y = np.interp(y3, (frameR, height-frameR), (0, screen_height))
 
+            print(bbox)
+
             curr_x = (prev_x + (cursor_x - prev_x)/smoothening)
             curr_y = (prev_y + (cursor_y - prev_y) / smoothening)
 
@@ -153,17 +155,14 @@ while True:
             if length > 60:
                 exit()
 
-        elif fingers[0] == 0 and fingers[1] == 1 and fingers[2] == 0 and fingers[3] == 1 and fingers[4] == 0:
-            length, img, lineInfo = detector.findDistance(4, 8, img)
-            if length > 60:
-                speech.record_audio()
-                text = speech.transcribe()
-                string = " ".join(text)
-                for char in string:
-                    kb.press(char)
-                    kb.release(char)
-                time.sleep(0.5)
-                kb.press(Key.enter)
+        elif fingers[0] == 0 and fingers[1] == 1 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
+            speech.record_audio(duration=4)
+            text = speech.transcribe()
+            string = " ".join(text)
+            for char in string:
+                kb.press(char)
+                kb.release(char)
+            time.sleep(0.2)
 
         elif all(lmlist[i][2] > 0 for i in [8, 12, 16, 20]):
             cursor_x = np.interp(x3, (frameR, width - frameR), (0, screen_width))
@@ -186,9 +185,7 @@ while True:
                     print("slide right")
                     kb.press(Key.right)  # Simulate pressing the left arrow key
                     kb.release(Key.right)
-                    time.sleep(0.7) # Simulate releasing the left arrow key    
-
-            action.move(screen_width - curr_x, curr_y)
+                    time.sleep(0.7) # Simulate releasing the left arrow key  
             prev_x, prev_y = curr_x, curr_y
 
     cTime = time.time()
