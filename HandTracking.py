@@ -94,10 +94,13 @@ class handDetector():
 def main():
     pTime = 0
     cTime = 0
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
     detector = handDetector()
     while True:
         success, img = cap.read()
+        if not success:
+            print("Ignoring empty camera frame.")
+            break
         img = detector.findHands(img)
         lmList, bbox = detector.findPosition(img)
         if len(lmList) != 0:
