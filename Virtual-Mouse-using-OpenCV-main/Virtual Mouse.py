@@ -8,17 +8,19 @@ import time
 #import autopy   # Install using "pip install autopy"\
 from pynput.keyboard import Key, Controller
 from action import action
+import pyautogui
 
 ### Variables Declaration
 pTime = 0               # Used to calculate frame rate
-width = 640             # Width of Camera
-height = 480            # Height of Camera
+width = 1333             # Width of Camera
+height = 1000          # Height of Camera
 frameR = 100            # Frame Rate
 smoothening = 8         # Smoothening Factor
 prev_x, prev_y = 0, 0   # Previous coordinates
 curr_x, curr_y = 0, 0   # Current coordinates
 prev_x_swipe, prev_y_swipe = 0, 0   # Previous coordinates
 curr_x_swipe, curr_y_swipe = 0, 0   # Current coordinates
+flag = 0
 
 cap = cv2.VideoCapture(0)   # Getting video feed from the webcam
 cap.set(3, width)           # Adjusting size
@@ -37,10 +39,11 @@ while True:
     if len(lmlist)!=0:
         x1, y1 = lmlist[8][1:]
         x2, y2 = lmlist[12][1:]
+        x5, y5 = lmlist[20][1:]
 
         fingers = detector.fingersUp()      # Checking if fingers are upwards
         cv2.rectangle(img, (frameR, frameR), (width - frameR, height - frameR), (255, 0, 255), 2)   # Creating boundary box
-        if fingers[1] == 1 and fingers[2] == 0:     # If fore finger is up and middle finger is down
+        if fingers[1] == 1 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 0 and fingers[0] == 0:     # If fore finger is up and middle finger is down
             x3 = np.interp(x1, (frameR,width-frameR), (0,screen_width))
             y3 = np.interp(y1, (frameR, height-frameR), (0, screen_height))
 
@@ -70,12 +73,37 @@ while True:
             kb.press(Key.right)
             time.sleep(0.5)
 
-        if fingers[0] == 0 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 1:
-            x3 = np.interp(x1, (frameR,width-frameR), (0,screen_width))
-            y3 = np.interp(y1, (frameR, height-frameR), (0, screen_height))
+        if fingers[0] == 0 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 1 and fingers[4] == 0:
+            length, img, lineInfo = detector.findDistance(8, 16, img)
+
+            if length < 40:
+                pyautogui.scroll(80)
+
+            if length > 100:
+                pyautogui.scroll(-80)
+
+        if fingers[0] == 1 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 1 and fingers[4] == 1:
+            length, img, lineInfo = detector.findDistance(8, 12, img)
+
+            if length < 40 and flag != 1:
+                print("pressed")
+                mouse.press(button = "left")
+                flag = 1
+            elif flag == 1 and length > 40:
+                print("released")
+                mouse.release(button = "left")
+                flag = 0
+
+            x3 = np.interp(x5, (frameR,width-frameR), (0,screen_width))
+            y3 = np.interp(y5, (frameR, height-frameR), (0, screen_height))
 
             curr_x = prev_x + (x3 - prev_x)/smoothening
             curr_y = prev_y + (y3 - prev_y) / smoothening
+
+            mouse.move(screen_width - curr_x,curr_y)
+            print("dragging x: " + str(screen_width - curr_x) + " y: " +  str(curr_y))    # Moving the cursor
+            cv2.circle(img, (x5, y5), 7, (255, 0, 255), cv2.FILLED)
+            prev_x, prev_y = curr_x, curr_y
             
 
     cTime = time.time()
