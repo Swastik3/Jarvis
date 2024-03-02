@@ -7,14 +7,14 @@ eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
 print("cascade files loaded")
 
 class EyeTracker():
-    def __init__(self,window_name) -> None:
+    def __init__(self,window_name,cap) -> None:
         self.width = 640
         self.height = 480
         self.debug_flag = False
         self.window_name = window_name
         
         print("loading video input")
-        self.cap = cv2.VideoCapture(0)
+        self.cap = cap
         print("video input loaded")
         
         detector_params = cv2.SimpleBlobDetector_Params()
@@ -103,9 +103,8 @@ class EyeTracker():
     def debug_toggle(self,x):
         self.debug_flag = not self.debug_flag
 
-    def track_eye_step(self):
+    def track_eye_step(self,frame):
         threshold = cv2.getTrackbarPos('threshold', self.window_name)
-        _, frame = self.cap.read()
         face_coords = self.detect_faces(frame, face_cascade)
         if face_coords is not None:
             eyes = self.detect_eyes(frame, eye_cascade, face_coords)
@@ -123,7 +122,8 @@ class EyeTracker():
                         cv2.circle(frame, (int(pupil_x), int(pupil_y)), 10, (0, 0, 255), 2)
         if self.debug_flag:
             frame = self.apply_filter(frame, threshold)
-        cv2.imshow(self.window_name, frame)
+        #cv2.imshow(self.window_name, frame)
+        return frame
 
 def main():
     

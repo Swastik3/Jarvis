@@ -15,12 +15,14 @@ import webbrowser
 from STT import STT
 import subprocess
 
+from eye_tracker import EyeTracker
+
 ### Variables Declaration
 pTime = 0               # Used to calculate frame rate
 width = 640             # Width of Camera
 height = 480          # Height of Camera
 frameR = 100            # Frame Rate
-smoothening = 8         # Smoothening Factor
+smoothening = 4         # Smoothening Factor
 prev_x, prev_y = 0, 0   # Previous coordinates
 curr_x, curr_y = 0, 0   # Current coordinates
 prev_x_swipe, prev_y_swipe = 0, 0   # Previous coordinates
@@ -40,6 +42,8 @@ cap.set(4, height)
 kb = Controller()
 x_threshold = 60 
 
+cv2.namedWindow("Image", cv2.WINDOW_NORMAL)
+tracker = EyeTracker("Image",cap)
 
 detector = ht.handDetector(maxHands=1)                  # Detecting one hand at max
 
@@ -146,9 +150,13 @@ def arduino_control():
 
 while True:
     success, img = cap.read()
+    img = tracker.track_eye_step(img)
+    
     img = detector.findHands(img)                       # Finding the hand
     lmlist, bbox = detector.findPosition(img)           # Getting position of hand
 
+    
+    
     if len(lmlist)!=0:
         x1, y1 = lmlist[8][1:]
         x2, y2 = lmlist[12][1:]
@@ -279,6 +287,7 @@ while True:
                     kb.press(Key.left)  # Simulate pressing the left arrow key
                     kb.release(Key.left) 
                     time.sleep(0.7) # Simulate releasing the left arrow key
+                    slide_counter = 0
             elif curr_x > prev_x and abs(curr_x - prev_x) > x_threshold:
                 slide_counter += 1
                 if slide_counter > 6:
@@ -286,6 +295,7 @@ while True:
                     kb.press(Key.right)  # Simulate pressing the left arrow key
                     kb.release(Key.right)
                     time.sleep(0.7) # Simulate releasing the left arrow key  
+                    slide_counter = 0
             prev_x, prev_y = curr_x, curr_y
 
     cTime = time.time()
