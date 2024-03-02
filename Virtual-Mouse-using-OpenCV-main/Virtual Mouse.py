@@ -9,6 +9,7 @@ import time
 from pynput.keyboard import Key, Controller
 from action import action
 import pyautogui
+import webbrowser
 
 ### Variables Declaration
 pTime = 0               # Used to calculate frame rate
@@ -21,13 +22,15 @@ curr_x, curr_y = 0, 0   # Current coordinates
 prev_x_swipe, prev_y_swipe = 0, 0   # Previous coordinates
 curr_x_swipe, curr_y_swipe = 0, 0   # Current coordinates
 flag = 0
+slide_counter = 0
+lammo = False
 
 cap = cv2.VideoCapture(0)   # Getting video feed from the webcam
 cap.set(3, width)           # Adjusting size
 cap.set(4, height)
 
 kb = Controller()
-x_threshold = 60 
+x_threshold = 80 
 
 
 detector = ht.handDetector(maxHands=1)                  # Detecting one hand at max
@@ -47,60 +50,51 @@ while True:
 
         fingers = detector.fingersUp()      # Checking if fingers are upwards
         cv2.rectangle(img, (frameR, frameR), (width - frameR, height - frameR), (255, 0, 255), 2)   # Creating boundary box
-        if fingers[1] == 1 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 0 and fingers[0] == 0:     # If fore finger is up and middle finger is down
-            x3 = np.interp(x1, (frameR,width-frameR), (0,screen_width))
-            y3 = np.interp(y1, (frameR, height-frameR), (0, screen_height))
+        if fingers[1] == 1 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 0:     # If fore finger is up and middle finger is down
+            cursor_x = np.interp(x1, (frameR,width-frameR), (0,screen_width))
+            cursor_y = np.interp(y1, (frameR, height-frameR), (0, screen_height))
 
-            curr_x = prev_x + (x3 - prev_x)/smoothening
-            curr_y = prev_y + (y3 - prev_y) / smoothening
+            curr_x = prev_x + (cursor_x - prev_x)/smoothening
+            curr_y = prev_y + (cursor_y - prev_y) / smoothening
 
             mouse.move(screen_width - curr_x,curr_y)
-            print("moving x: " + str(screen_width - curr_x) + " y: " +  str(curr_y))    # Moving the cursor
             cv2.circle(img, (x1, y1), 7, (255, 0, 255), cv2.FILLED)
             prev_x, prev_y = curr_x, curr_y
-        
-        elif all(lmlist[i][2] > 0 for i in [8, 12, 16, 20]):
-            print("tips")
-            x3 = np.interp(x1, (frameR, width - frameR), (0, screen_width))
-            y3 = np.interp(y1, (frameR, height - frameR), (0, screen_height))
+            length, img, lineInfo = detector.findDistance(4, 8, img)
 
-            curr_x = prev_x + (x3 - prev_x) / smoothening
-            curr_y = prev_y + (y3 - prev_y) / smoothening
-
-            # Check if sliding left and movement surpasses the threshold
-            if curr_x < prev_x and abs(curr_x - prev_x) > x_threshold:
-                print("slide left")
-                kb.press(Key.left)  # Simulate pressing the left arrow key
-                kb.release(Key.left) 
-                time.sleep(0.5) # Simulate releasing the left arrow key
-            elif curr_x > prev_x and abs(curr_x - prev_x) > x_threshold:
-                print("slide right")
-                kb.press(Key.right)  # Simulate pressing the left arrow key
-                kb.release(Key.right)
-                time.sleep(0.5) # Simulate releasing the left arrow key    
-
-            mouse.move(screen_width - curr_x, curr_y)
-            prev_x, prev_y = curr_x, curr_y
-
-        elif fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 0:     # If fore finger & middle finger both are up
-            length, img, lineInfo = detector.findDistance(8, 12, img)
-
-            if length < 40:     # If both fingers are really close to each other
+            if length < 60:     # If both fingers are really close to each other
                 cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
                 #autopy.mouse.click()    # Perform Click
                 mouse.click()
                 print("click")
-                time.sleep(0.5)
+                time.sleep(0.15)
+                if length < 35:
+                    cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
+                    #autopy.mouse.click()    # Perform Click
+                    mouse.click()
+                    print("click")
+                else:
+                    time.sleep(0.35)
 
-        elif fingers[0] == 1 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 0:
-            kb.press(Key.left)
-            time.sleep(0.5)
+        # elif fingers[0] == 1 and fingers[1] == 1 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 0:     # If fore finger & middle finger both are up
+        #     length, img, lineInfo = detector.findDistance(4, 8, img)
 
-        elif fingers[0] == 0 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
-            kb.press(Key.right)
-            time.sleep(0.5)
+        #     if length < 40:     # If both fingers are really close to each other
+        #         cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
+        #         #autopy.mouse.click()    # Perform Click
+        #         mouse.click()
+        #         print("click")
+        #         time.sleep(0.5)
 
-        if fingers[0] == 0 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 1 and fingers[4] == 0:
+        # elif fingers[0] == 1 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 0:
+        #     kb.press(Key.left)
+        #     time.sleep(0.5)
+
+        # elif fingers[0] == 0 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
+        #     kb.press(Key.right)
+        #     time.sleep(0.5)
+
+        elif fingers[0] == 0 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 1 and fingers[4] == 0:
             length, img, lineInfo = detector.findDistance(8, 16, img)
 
             if length < 40:
@@ -109,7 +103,7 @@ while True:
             if length > 100:
                 pyautogui.scroll(-80)
 
-        if fingers[0] == 1 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 1 and fingers[4] == 1:
+        elif fingers[0] == 0 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 0 and fingers[4] == 0:
             length, img, lineInfo = detector.findDistance(8, 12, img)
 
             if length < 40 and flag != 1:
@@ -128,8 +122,38 @@ while True:
             curr_y = prev_y + (y3 - prev_y) / smoothening
 
             mouse.move(screen_width - curr_x,curr_y)
-            print("dragging x: " + str(screen_width - curr_x) + " y: " +  str(curr_y))    # Moving the cursor
             cv2.circle(img, (x5, y5), 7, (255, 0, 255), cv2.FILLED)
+            prev_x, prev_y = curr_x, curr_y
+
+        elif fingers[2]== 1 and fingers[0]==1 and fingers[4]==1 and fingers[3]==0 and fingers[1]==0 and lammo==False:
+            print("snappp")
+            lammo=True    
+            webbrowser.open("https://www.youtube.com/watch?v=hw2eOKy5w9g&pp=ygUQbW91bnRhaW4gZGV3IGRhcg%3D%3D", new=2)
+
+        elif all(lmlist[i][2] > 0 for i in [8, 12, 16, 20]):
+            cursor_x = np.interp(x1, (frameR, width - frameR), (0, screen_width))
+            cursor_y = np.interp(y1, (frameR, height - frameR), (0, screen_height))
+
+            curr_x = prev_x + (cursor_x - prev_x) / smoothening
+            curr_y = prev_y + (cursor_y - prev_y) / smoothening
+
+            # Check if sliding left and movement surpasses the threshold
+            if curr_x < prev_x and abs(curr_x - prev_x) > x_threshold:
+                slide_counter += 1
+                if slide_counter > 6:
+                    print("slide left")
+                    kb.press(Key.left)  # Simulate pressing the left arrow key
+                    kb.release(Key.left) 
+                    time.sleep(0.7) # Simulate releasing the left arrow key
+            elif curr_x > prev_x and abs(curr_x - prev_x) > x_threshold:
+                slide_counter += 1
+                if slide_counter > 6:
+                    print("slide right")
+                    kb.press(Key.right)  # Simulate pressing the left arrow key
+                    kb.release(Key.right)
+                    time.sleep(0.7) # Simulate releasing the left arrow key    
+
+            mouse.move(screen_width - curr_x, curr_y)
             prev_x, prev_y = curr_x, curr_y
 
 
