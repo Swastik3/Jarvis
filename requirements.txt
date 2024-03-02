@@ -1,3 +1,4 @@
-pyautugui=0.9.54
+pyaut0gui=0.9.54
 pynput
 mouse
+pywin32

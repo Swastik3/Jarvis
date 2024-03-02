@@ -76,10 +76,6 @@ while True:
 
             curr_x = prev_x + (x3 - prev_x)/smoothening
             curr_y = prev_y + (y3 - prev_y) / smoothening
-
-            mouse.scroll(0, (screen_height - curr_y)/200)
-            time.sleep(0.5)
-
             
 
     cTime = time.time()
