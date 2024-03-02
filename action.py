@@ -1,14 +1,28 @@
-import pyautogui
+import os 
+if os.name == 'nt': import mouse
+else: import macmouse
 
-def shortcut(keys):
-    pyautogui.hotkey(*keys)
+def click():
+    try:
+        mouse.click()
+    except: 
+        macmouse.click()
 
-def action(name,arg1 = None,arg2 = None):
-    if name == "move":
-        pyautogui.moveTo(arg1,arg2)
-    elif name == "click":
-        pyautogui.click()
-    elif name == "left":
-        shortcut(["left"])
-    elif name == "right":
-        shortcut(["right"])
+def move(x, y):
+    try: 
+        mouse.move(x, y)
+    except: 
+        macmouse.move(x, y)
+
+def press(button):
+    try:
+        mouse.press(button=button)
+    except: 
+        macmouse.press(button=button)
+
+def release(button):
+    try:
+        mouse.release(button=button)
+    except: 
+        macmouse.release(button=button)
+
