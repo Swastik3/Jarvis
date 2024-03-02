@@ -244,8 +244,11 @@ while True:
             print("ppp") 
             dammo=True
             #subprocess.run(r'"Tera Term.lnk"')
+            p = subprocess.Popen([r"C:\Users\sange\OneDrive\Documents\teraterm\ttermpro.exe", '/SHOW'])
+           
             arduino_control()
             time.sleep(0.5)
+            p.terminate()
 
         elif fingers[0] == 0 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
             length, img, lineInfo = detector.findDistance(16, 20, img)
