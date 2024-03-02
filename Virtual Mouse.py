@@ -14,6 +14,7 @@ import pyautogui
 import webbrowser
 from STT import STT
 import subprocess
+from eye_tracker import EyeTracker
 
 ### Variables Declaration
 pTime = 0               # Used to calculate frame rate
@@ -39,6 +40,9 @@ cap.set(4, height)
 
 kb = Controller()
 x_threshold = 60 
+#cv2.namedWindow("Image", cv2.WINDOW_NORMAL)
+
+#tracker = EyeTracker("Image", cap)
 
 
 detector = ht.handDetector(maxHands=1)                  # Detecting one hand at max
@@ -76,7 +80,7 @@ def arduino_control():
                 cursor_x = np.interp(x3, (frameR,width-frameR), (0,screen_width))
                 cursor_y = np.interp(y3, (frameR, height-frameR), (0, screen_height))
 
-                print(bbox)
+                #print(bbox)
 
                 curr_x = (prev_x + (cursor_x - prev_x)/smoothening)
                 curr_y = (prev_y + (cursor_y - prev_y) / smoothening)
@@ -90,13 +94,13 @@ def arduino_control():
                     cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
                     #autopy.action.click()    # Perform Click
                     action.click()
-                    print("click")
+                    #print("click")
                     time.sleep(0.35)
                     if length < 25:
                         cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
                         #autopy.action.click()    # Perform Click
                         action.click()
-                        print("click")
+                        #print("click")
                     else:
                         time.sleep(0.25)
 
@@ -104,36 +108,45 @@ def arduino_control():
                 length, img, lineInfo = detector.findDistance(8, 12, img)
 
                 if length < 40:
-                    print("pressing z")
+                    #print("pressing z")
                     kb.press("z")
                 elif length > 80:
-                    print("pressing x")
+                    #print("pressing x")
                     kb.press("x")
 
             elif fingers[0] == 0 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 1 and fingers[4] == 0:     # If fore finger & middle finger both are up
                 length, img, lineInfo = detector.findDistance(8, 16, img)
 
                 if length < 50:
-                    print("pressing a")
+                    #print("pressing a")
                     kb.press("a")
                 elif length > 100:
-                    print("pressing d")
+                    #print("pressing d")
                     kb.press("d")
 
             elif fingers[0] == 0 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 1 and fingers[4] == 1:     # If fore finger & middle finger both are up
                 length, img, lineInfo = detector.findDistance(8, 20, img)
 
                 if length < 80:
-                    print("pressing w")
+                    #print("pressing w")
                     kb.press("w")
                 elif length > 120:
-                    print("pressing s")
+                    #print("pressing s")
                     kb.press("s")
+
+            elif fingers[0] == 1 and fingers[1] == 1 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:     # If fore finger & middle finger both are up
+                kb.press("1")
+            
+            elif fingers[0] == 0 and fingers[1] == 1 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:     # If fore finger & middle finger both are up
+                kb.press("2")
+
+            elif fingers[0] == 1 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 0 and fingers[4] == 0:     # If fore finger & middle finger both are up
+                kb.press("3")
 
             elif fingers[0] == 0 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
                 length, img, lineInfo = detector.findDistance(16, 20, img)
                 if length > 60:
-                    print("exiting")
+                    #print("exiting")
                     dammo = False
                     return
 
@@ -148,6 +161,7 @@ while True:
     success, img = cap.read()
     img = detector.findHands(img)                       # Finding the hand
     lmlist, bbox = detector.findPosition(img)           # Getting position of hand
+    #tracker.track_eye_step()
 
     if len(lmlist)!=0:
         x1, y1 = lmlist[8][1:]
@@ -162,7 +176,7 @@ while True:
             cursor_x = np.interp(x3, (frameR,width-frameR), (0,screen_width))
             cursor_y = np.interp(y3, (frameR, height-frameR), (0, screen_height))
 
-            print(bbox)
+            #print(bbox)
 
             curr_x = (prev_x + (cursor_x - prev_x)/smoothening)
             curr_y = (prev_y + (cursor_y - prev_y) / smoothening)
@@ -176,13 +190,13 @@ while True:
                 cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
                 #autopy.action.click()    # Perform Click
                 action.click()
-                print("click")
+                #print("click")
                 time.sleep(0.35)
                 if length < 25:
                     cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
                     #autopy.action.click()    # Perform Click
                     action.click()
-                    print("click")
+                    #print("click")
                 else:
                     time.sleep(0.25)
 
@@ -217,11 +231,11 @@ while True:
             length, img, lineInfo = detector.findDistance(8, 12, img)
 
             if length < 40 and flag != 1:
-                print("pressed")
+                #print("pressed")
                 action.press(button = "left")
                 flag = 1
             elif flag == 1 and length > 40:
-                print("released")
+                #print("released")
                 action.release(button = "left")
                 flag = 0
 
@@ -236,19 +250,19 @@ while True:
             prev_x, prev_y = curr_x, curr_y
 
         elif fingers[2]== 1 and fingers[0]==1 and fingers[4]==1 and fingers[3]==0 and fingers[1]==0 and lammo==False:
-            print("snappp")
+            #print("snappp")
             lammo=True    
             webbrowser.open("https://www.youtube.com/watch?v=hw2eOKy5w9g&pp=ygUQbW91bnRhaW4gZGV3IGRhcg%3D%3D", new=2)
 
         elif fingers[0]== 1 and fingers[1]==1 and fingers[2]==1 and fingers[3]==1 and fingers[4]==0 and dammo==False:
-            print("ppp") 
+            #print("ppp") 
             dammo=True
             #subprocess.run(r'"Tera Term.lnk"')
-            p = subprocess.Popen([r"C:\Users\sange\OneDrive\Documents\teraterm\ttermpro.exe", '/SHOW'])
+            #p = subprocess.Popen([r"C:\Users\sange\OneDrive\Documents\teraterm\ttermpro.exe", '/SHOW'])
            
             arduino_control()
             time.sleep(0.5)
-            p.terminate()
+            #p.terminate()
 
         elif fingers[0] == 0 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
             length, img, lineInfo = detector.findDistance(16, 20, img)
@@ -275,14 +289,14 @@ while True:
             if curr_x < prev_x and abs(curr_x - prev_x) > x_threshold:
                 slide_counter += 1
                 if slide_counter > 6:
-                    print("slide left")
+                    #print("slide left")
                     kb.press(Key.left)  # Simulate pressing the left arrow key
                     kb.release(Key.left) 
                     time.sleep(0.7) # Simulate releasing the left arrow key
             elif curr_x > prev_x and abs(curr_x - prev_x) > x_threshold:
                 slide_counter += 1
                 if slide_counter > 6:
-                    print("slide right")
+                    #print("slide right")
                     kb.press(Key.right)  # Simulate pressing the left arrow key
                     kb.release(Key.right)
                     time.sleep(0.7) # Simulate releasing the left arrow key  
