@@ -2,12 +2,13 @@ import cv2
 import numpy as np
 import time
 import HandTracking as ht
-import win32api
-import mouse
+import os
+if os.name == 'nt': import win32api
+else: from AppKit import NSScreen
 import time
+import action
 #import autopy   # Install using "pip install autopy"\
 from pynput.keyboard import Key, Controller
-from action import action
 import pyautogui
 import webbrowser
 from STT import STT
@@ -28,7 +29,8 @@ lammo = False
 
 speech = STT()
 
-cap = cv2.VideoCapture(0)   # Getting video feed from the webcam
+if os.name == 'nt': cap = cv2.VideoCapture(0)
+else: cap = cv2.VideoCapture(1)   # Getting video feed from the webcam
 cap.set(3, width)           # Adjusting size
 cap.set(4, height)
 
@@ -37,8 +39,17 @@ x_threshold = 60
 
 
 detector = ht.handDetector(maxHands=1)                  # Detecting one hand at max
-screen_width = win32api.GetSystemMetrics(0)
-screen_height = win32api.GetSystemMetrics(1)     # Getting the screen size
+
+
+try:                   # Detecting one hand at max
+    screen_width = win32api.GetSystemMetrics(0)
+    screen_height = win32api.GetSystemMetrics(1)     # Getting the screen size
+except:
+    screen = NSScreen.mainScreen()
+    frame = screen.visibleFrame()
+    screen_width = frame.size.width
+    screen_height = frame.size.height
+   # Getting the screen size
 while True:
     success, img = cap.read()
     img = detector.findHands(img)                       # Finding the hand
@@ -60,21 +71,21 @@ while True:
             curr_x = (prev_x + (cursor_x - prev_x)/smoothening)
             curr_y = (prev_y + (cursor_y - prev_y) / smoothening)
 
-            mouse.move(screen_width - curr_x,curr_y)
+            action.move(screen_width - curr_x,curr_y)
             cv2.circle(img, (x3, y3), 7, (255, 0, 255), cv2.FILLED)
             prev_x, prev_y = curr_x, curr_y
             length, img, lineInfo = detector.findDistance(4, 8, img)
 
             if length < 40:     # If both fingers are really close to each other
                 cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
-                #autopy.mouse.click()    # Perform Click
-                mouse.click()
+                #autopy.action.click()    # Perform Click
+                action.click()
                 print("click")
                 time.sleep(0.35)
                 if length < 25:
                     cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
-                    #autopy.mouse.click()    # Perform Click
-                    mouse.click()
+                    #autopy.action.click()    # Perform Click
+                    action.click()
                     print("click")
                 else:
                     time.sleep(0.25)
@@ -84,8 +95,8 @@ while True:
 
         #     if length < 40:     # If both fingers are really close to each other
         #         cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
-        #         #autopy.mouse.click()    # Perform Click
-        #         mouse.click()
+        #         #autopy.action.click()    # Perform Click
+        #         action.click()
         #         print("click")
         #         time.sleep(0.5)
 
@@ -111,11 +122,11 @@ while True:
 
             if length < 40 and flag != 1:
                 print("pressed")
-                mouse.press(button = "left")
+                action.press(button = "left")
                 flag = 1
             elif flag == 1 and length > 40:
                 print("released")
-                mouse.release(button = "left")
+                action.release(button = "left")
                 flag = 0
 
             cursor_x = np.interp(x3, (frameR,width-frameR), (0,screen_width))
@@ -124,7 +135,7 @@ while True:
             curr_x = prev_x + (cursor_x - prev_x)/smoothening
             curr_y = prev_y + (cursor_y - prev_y) / smoothening
 
-            mouse.move(screen_width - curr_x,curr_y)
+            action.move(screen_width - curr_x,curr_y)
             cv2.circle(img, (x3, y3), 7, (255, 0, 255), cv2.FILLED)
             prev_x, prev_y = curr_x, curr_y
 
@@ -173,7 +184,7 @@ while True:
                     kb.release(Key.right)
                     time.sleep(0.7) # Simulate releasing the left arrow key    
 
-            mouse.move(screen_width - curr_x, curr_y)
+            action.move(screen_width - curr_x, curr_y)
             prev_x, prev_y = curr_x, curr_y
 
     cTime = time.time()
