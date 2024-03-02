@@ -13,6 +13,7 @@ from pynput.keyboard import Key, Controller
 import pyautogui
 import webbrowser
 from STT import STT
+import subprocess
 
 ### Variables Declaration
 pTime = 0               # Used to calculate frame rate
@@ -27,6 +28,7 @@ curr_x_swipe, curr_y_swipe = 0, 0   # Current coordinates
 flag = 0
 slide_counter = 0
 lammo = False
+dammo = False
 
 speech = STT()
 
@@ -147,9 +149,10 @@ while True:
             lammo=True    
             webbrowser.open("https://www.youtube.com/watch?v=hw2eOKy5w9g&pp=ygUQbW91bnRhaW4gZGV3IGRhcg%3D%3D", new=2)
 
-        elif fingers[0]== 1 and fingers[1]==1 and fingers[2]==1 and fingers[3]==1 and fingers[4]==0:
+        elif fingers[0]== 1 and fingers[1]==1 and fingers[2]==1 and fingers[3]==1 and fingers[4]==0 and dammo==False:
             print("ppp") 
-            os.system("C:/ProgramData/Microsoft/Windows/Start Menu/Programs/Tera Term/Tera Term.lnk")
+            dammo=True
+            subprocess.run(r'"Tera Term.lnk"')
 
         elif fingers[0] == 0 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
             length, img, lineInfo = detector.findDistance(16, 20, img)
