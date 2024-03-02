@@ -58,7 +58,13 @@ def detect_faces(img,classifier):
     (x, y, w, h) = biggest
     return (x,y,x + w,y + h)
 
-
+def apply_filter(img,threshold):
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    _, img = cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY)
+    img = cv2.erode(img, None, iterations=2) #1
+    img = cv2.dilate(img, None, iterations=4) #2
+    img = cv2.medianBlur(img, 5)
+    return img
 
 def cut_eyebrows(img):
     height, width = img.shape[:2]
@@ -93,6 +99,7 @@ def main():
     cv2.createTrackbar('threshold', 'image', 0, 255, lambda x:None)
     print("camera loaded")
     while True:
+        threshold = cv2.getTrackbarPos('threshold', 'image')
         _, frame = cap.read()
         face_coords = detect_faces(frame, face_cascade)
         if face_coords is not None:
@@ -104,13 +111,14 @@ def main():
                     eye = cut_eyebrows(eye)
                     print("blob processing")
                     """
-                    threshold = cv2.getTrackbarPos('threshold', 'image')
+                    
                     pupil_coords = blob_process(frame, detector, eye, threshold)
                     if pupil_coords is not None:
                         pupil_x, pupil_y = pupil_coords
                         cv2.circle(frame, (int(pupil_x), int(pupil_y)), 10, (0, 0, 255), 2)
             
             #cv2.rectangle(frame,face_coords[:2],face_coords[2:],(0,255,0),2)
+        frame = apply_filter(frame, threshold)
         cv2.imshow('image', frame)
         #time.sleep(0.05) # 20 fps
         if cv2.waitKey(1) & 0xFF == ord('q'):
