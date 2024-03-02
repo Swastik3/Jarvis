@@ -22,7 +22,7 @@ class STT():
         sf.write(save_location, audio, sample_rate)
         print("Audio saved as: ", save_location)
     
-    def transcribe(self, audio_filename):
+    def transcribe(self, audio_filename=os.path.join("tmp","audio.mp3")):
         segments, info = self.model.transcribe(audio_filename, beam_size=5)
         print("Detected language '%s' with probability %f" % (info.language, info.language_probability))
         segment_list = []
