@@ -25,6 +25,8 @@ cap.set(3, width)           # Adjusting size
 cap.set(4, height)
 
 kb = Controller()
+x_threshold = 60 
+
 
 detector = ht.handDetector(maxHands=1)                  # Detecting one hand at max
 screen_width = win32api.GetSystemMetrics(0)
@@ -37,6 +39,8 @@ while True:
     if len(lmlist)!=0:
         x1, y1 = lmlist[8][1:]
         x2, y2 = lmlist[12][1:]
+        x3, y3 = lmlist[16][1:]
+        x4, y4 = lmlist[20][1:]
 
         fingers = detector.fingersUp()      # Checking if fingers are upwards
         cv2.rectangle(img, (frameR, frameR), (width - frameR, height - frameR), (255, 0, 255), 2)   # Creating boundary box
@@ -51,8 +55,31 @@ while True:
             print("moving x: " + str(screen_width - curr_x) + " y: " +  str(curr_y))    # Moving the cursor
             cv2.circle(img, (x1, y1), 7, (255, 0, 255), cv2.FILLED)
             prev_x, prev_y = curr_x, curr_y
+        
+        elif all(lmlist[i][2] > 0 for i in [8, 12, 16, 20]):
+            print("tips")
+            x3 = np.interp(x1, (frameR, width - frameR), (0, screen_width))
+            y3 = np.interp(y1, (frameR, height - frameR), (0, screen_height))
 
-        if fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 0:     # If fore finger & middle finger both are up
+            curr_x = prev_x + (x3 - prev_x) / smoothening
+            curr_y = prev_y + (y3 - prev_y) / smoothening
+
+            # Check if sliding left and movement surpasses the threshold
+            if curr_x < prev_x and abs(curr_x - prev_x) > x_threshold:
+                print("slide left")
+                kb.press(Key.left)  # Simulate pressing the left arrow key
+                kb.release(Key.left) 
+                time.sleep(0.5) # Simulate releasing the left arrow key
+            elif curr_x > prev_x and abs(curr_x - prev_x) > x_threshold:
+                print("slide right")
+                kb.press(Key.right)  # Simulate pressing the left arrow key
+                kb.release(Key.right)
+                time.sleep(0.5) # Simulate releasing the left arrow key    
+
+            mouse.move(screen_width - curr_x, curr_y)
+            prev_x, prev_y = curr_x, curr_y
+
+        elif fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 0:     # If fore finger & middle finger both are up
             length, img, lineInfo = detector.findDistance(8, 12, img)
 
             if length < 40:     # If both fingers are really close to each other
@@ -62,11 +89,11 @@ while True:
                 print("click")
                 time.sleep(0.5)
 
-        if fingers[0] == 1 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 0:
+        elif fingers[0] == 1 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 0:
             kb.press(Key.left)
             time.sleep(0.5)
 
-        if fingers[0] == 0 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
+        elif fingers[0] == 0 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
             kb.press(Key.right)
             time.sleep(0.5)
 
@@ -76,7 +103,9 @@ while True:
 
             curr_x = prev_x + (x3 - prev_x)/smoothening
             curr_y = prev_y + (y3 - prev_y) / smoothening
-            
+
+
+        
 
     cTime = time.time()
     fps = 1/(cTime-pTime)
