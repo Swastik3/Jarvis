@@ -104,31 +104,31 @@ def arduino_control():
                 length, img, lineInfo = detector.findDistance(8, 12, img)
 
                 if length < 40:
-                    print("pressing a")
-                    kb.press("a")
+                    print("pressing z")
+                    kb.press("z")
                 elif length > 80:
-                    print("pressing d")
-                    kb.press("d")
+                    print("pressing x")
+                    kb.press("x")
 
             elif fingers[0] == 0 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 1 and fingers[4] == 0:     # If fore finger & middle finger both are up
                 length, img, lineInfo = detector.findDistance(8, 16, img)
 
                 if length < 50:
-                    print("pressing w")
-                    kb.press("w")
+                    print("pressing a")
+                    kb.press("a")
                 elif length > 100:
-                    print("pressing s")
-                    kb.press("s")
+                    print("pressing d")
+                    kb.press("d")
 
             elif fingers[0] == 0 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 1 and fingers[4] == 1:     # If fore finger & middle finger both are up
                 length, img, lineInfo = detector.findDistance(8, 20, img)
 
                 if length < 80:
-                    print("pressing z")
-                    kb.press("z")
+                    print("pressing w")
+                    kb.press("w")
                 elif length > 120:
-                    print("pressing x")
-                    kb.press("x")
+                    print("pressing s")
+                    kb.press("s")
 
             elif fingers[0] == 0 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
                 length, img, lineInfo = detector.findDistance(16, 20, img)
