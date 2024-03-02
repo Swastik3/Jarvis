@@ -76,6 +76,10 @@ def blob_process(img, detector, eye_coords, threshold=42):
     img = cv2.erode(img, None, iterations=2) #1
     img = cv2.dilate(img, None, iterations=4) #2
     img = cv2.medianBlur(img, 5) #3
+    
+    cv2.imshow('tmp_img', img)
+    time.sleep(1)
+    
     keypoints = detector.detect(img)
     if len(keypoints) > 0:
         detected_x, detected_y = keypoints[0].pt
@@ -102,7 +106,7 @@ def main():
                     pupil_coords = blob_process(frame, detector, eye)
                     if pupil_coords is not None:
                         pupil_x, pupil_y = pupil_coords
-                        cv2.circle(frame, (int(pupil_x), int(pupil_y)), 5, (0, 0, 255), 2)
+                        cv2.circle(frame, (int(pupil_x), int(pupil_y)), 10, (0, 0, 255), 2)
             
             #cv2.rectangle(frame,face_coords[:2],face_coords[2:],(0,255,0),2)
         cv2.imshow('my image', frame)
