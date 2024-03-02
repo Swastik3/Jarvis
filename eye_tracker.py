@@ -1,5 +1,4 @@
 import cv2
-import numpy as np
 import time
 
 print("loading cascade files")
@@ -76,6 +75,10 @@ def blob_process(img, detector, eye_coords, threshold=42):
     img = cv2.erode(img, None, iterations=2) #1
     img = cv2.dilate(img, None, iterations=4) #2
     img = cv2.medianBlur(img, 5) #3
+    
+    #cv2.imshow('tmp_img', img)
+    #time.sleep(1)
+    
     keypoints = detector.detect(img)
     if len(keypoints) > 0:
         detected_x, detected_y = keypoints[0].pt
@@ -86,6 +89,8 @@ def blob_process(img, detector, eye_coords, threshold=42):
 def main():
     print("loading camera")
     cap = cv2.VideoCapture(0)
+    cv2.namedWindow('image')
+    cv2.createTrackbar('threshold', 'image', 0, 255, lambda x:None)
     print("camera loaded")
     while True:
         _, frame = cap.read()
@@ -99,13 +104,14 @@ def main():
                     eye = cut_eyebrows(eye)
                     print("blob processing")
                     """
-                    pupil_coords = blob_process(frame, detector, eye)
+                    threshold = cv2.getTrackbarPos('threshold', 'image')
+                    pupil_coords = blob_process(frame, detector, eye, threshold)
                     if pupil_coords is not None:
                         pupil_x, pupil_y = pupil_coords
-                        cv2.circle(frame, (int(pupil_x), int(pupil_y)), 5, (0, 0, 255), 2)
+                        cv2.circle(frame, (int(pupil_x), int(pupil_y)), 10, (0, 0, 255), 2)
             
             #cv2.rectangle(frame,face_coords[:2],face_coords[2:],(0,255,0),2)
-        cv2.imshow('my image', frame)
+        cv2.imshow('image', frame)
         #time.sleep(0.05) # 20 fps
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
