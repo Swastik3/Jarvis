@@ -3,19 +3,27 @@ import sounddevice as sd
 import soundfile as sf
 import os
 import time
+from gtts import gTTS
+import playsound
 
-model_size = "large-v3"
+
+
 
 class STT():
     def __init__(self,model_size="small.en"):
         print("Loading model...")
         self.model = WhisperModel(model_size, device="cpu", compute_type="int8")
         print("Model loaded")
-        self.audio = None
+        tts = gTTS("Recording", lang="en")
+        tts.save("tmp/recording.mp3")
 
-    def record_audio(self, duration=5, sample_rate=44100, save_location=os.path.join("tmp","audio.mp3")):
+    def record_audio(self, duration=2, sample_rate=44100, save_location=os.path.join("tmp","audio.mp3")):
         
         frames = int(duration * sample_rate)
+        
+        # Play the recording
+        playsound.playsound("tmp/recording.mp3")
+        
         print("Recording audio for ", duration, " seconds")
         audio = sd.rec(frames, samplerate=sample_rate, channels=1)
         sd.wait()
