@@ -22,7 +22,7 @@ class STT():
         frames = int(duration * sample_rate)
         
         # Play the recording
-        playsound.playsound("tmp/recording.mp3")
+        #playsound.playsound("tmp/recording.mp3")
         
         print("Recording audio for ", duration, " seconds")
         audio = sd.rec(frames, samplerate=sample_rate, channels=1)

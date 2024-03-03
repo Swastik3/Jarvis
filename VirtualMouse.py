@@ -17,6 +17,8 @@ import subprocess
 from RealtimeSTT import AudioToTextRecorder
 import os
 
+from threading import Thread
+
 
 ### Variables Declaration
 
@@ -29,10 +31,9 @@ class VirtualMouse:
         self.smoothening = 8         # self.smoothening Factor
         self.prev_x, self.prev_y = 0, 0   # Previous coordinates
         self.curr_x, self.curr_y = 0, 0   # Current coordinates
-        self.prev_x_swipe, self.prev_y_swipe = 0, 0   # Previous coordinates
-        self.curr_x_swipe, self.curr_y_swipe = 0, 0   # Current coordinates
         self.flag = 0
-        self.slide_counter = 0
+        self.slide_counter_right = 0
+        self.slide_counter_left = 0
         self.lammo = False
         self.dammo = False
 
@@ -62,8 +63,53 @@ class VirtualMouse:
             self.screen_width = frame.size.width
             self.screen_height = frame.size.height
 
+        
+        self.click_timer = 0
+        self.right_click_timer = 0
+        self.record_timer = 0
+        self.slide_right_timer = 0
+        self.slide_left_timer = 0
+        
 # Getting the screen size
 
+    def perform_click(self):
+        print("clicking")
+        Thread(target=action.click).start()
+        self.click_timer = 20
+    
+    def perform_right_click(self):
+        print("right clicking")
+        Thread(target=action.click, args=("right",)).start()
+        self.right_click_timer = 20
+    
+    def perform_record(self):
+        print("recording")
+        def record_inner(speech,kb):
+            speech.record_audio(duration=4)
+            text = speech.transcribe()
+            string = " ".join(text)
+            for char in string:
+                kb.press(char)
+                kb.release(char)
+        Thread(target=record_inner, args=(self.speech,self.kb)).start()
+        self.record_timer = 60
+    
+    def perform_slide_right(self):
+        print("sliding right")
+        def slide_right():
+            self.kb.press(Key.right)  # Simulate pressing the left arrow key
+            self.kb.release(Key.right)
+        Thread(target=slide_right).start()
+        self.slide_right_timer = 20
+    
+    def perform_slide_left(self):
+        print("sliding left")
+        def slide_left():
+            self.kb.press(Key.left)  # Simulate pressing the left arrow key
+            self.kb.release(Key.left)
+        Thread(target=slide_left).start()
+        self.slide_left_timer = 20
+    
     def arduino_control(self):
         ricko = False
         shitto = False
@@ -189,7 +235,7 @@ class VirtualMouse:
 
                 fingers = self.detector.fingersUp()      # Checking if fingers are upwards
                 cv2.rectangle(img, (self.frameR, self.frameR), (self.width - self.frameR, self.height - self.frameR), (255, 0, 255), 2)   # Creating boundary box
-                if fingers[0] == 1 and fingers[1] == 1 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 0:     # If fore finger is up and middle finger is down
+                if fingers == [1,1,0,0,0]:     # If fore finger is up and middle finger is down
                     cursor_x = np.interp(x3, (self.frameR,self.width-self.frameR), (0,self.screen_width))
                     cursor_y = np.interp(y3, (self.frameR, self.height-self.frameR), (0, self.screen_height))
 
@@ -206,29 +252,35 @@ class VirtualMouse:
                     if self.curr_x > 2000 or self.curr_y > 1400 or self.curr_x < 200 or self.curr_y < 100:
                         if length < 60:
                             cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
-                            action.click()
-                            time.sleep(0.35)
+                            if self.click_timer == 0:
+                                self.perform_click()
+                            
+                            #TODO: do we need this?
                             if length < 40:
                                 cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
-                                action.click()
+                                if self.click_timer == 0:
+                                    print("shady click")
+                                    self.perform_click()
                             else:
-                                time.sleep(0.25)
+                                #time.sleep(0.25)
+                                pass
 
                     elif length < 40:     # If both fingers are really close to each other
                         cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
-                        #autopy.action.click()    # Perform Click
-                        action.click()
-                        #print("click")
-                        time.sleep(0.35)
+                           # Perform Click
+                        if self.click_timer == 0:
+                                self.perform_click()
+                        
                         if length < 20:
                             cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
                             #autopy.action.click()    # Perform Click
-                            action.click()
-                            #print("click")
+                            if self.click_timer == 0:
+                                self.perform_click()
                         else:
-                            time.sleep(0.25)
+                            #time.sleep(0.25)
+                            pass
 
-                elif fingers[0] == 1 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 0 and fingers[4] == 0:     # If fore finger is up and middle finger is down
+                elif fingers == [1,1,1,0,0]:     # If fore finger is up and middle finger is down
                         cursor_x = np.interp(x3, (self.frameR,self.width-self.frameR), (0,self.screen_width))
                         cursor_y = np.interp(y3, (self.frameR, self.height-self.frameR), (0, self.screen_height))
 
@@ -246,12 +298,10 @@ class VirtualMouse:
                         if length1 < 40 and length2 < 40:     # If both fingers are really close to each other
                             cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
                             #autopy.action.click()    # Perform Click
-                            action.click("right")
-                            #print("click")
-                            time.sleep(0.3)
+                            if self.right_click_timer == 0:
+                                self.perform_right_click()
 
-
-                elif fingers[0] == 0 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 1 and fingers[4] == 0:
+                elif fingers == [0,1,1,1,0]:
                     length, img, lineInfo = self.detector.findDistance(8, 16, img)
 
                     if length < 40:
@@ -260,7 +310,7 @@ class VirtualMouse:
                     if length > 100:
                         pyautogui.scroll(-80)
 
-                elif fingers[0] == 0 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 0 and fingers[4] == 0:
+                elif fingers == [0,1,1,0,0]:
                     length, img, lineInfo = self.detector.findDistance(8, 12, img)
 
                     if length < 40 and self.flag != 1:
@@ -282,12 +332,12 @@ class VirtualMouse:
                     cv2.circle(img, (x3, y3), 7, (255, 0, 255), cv2.FILLED)
                     self.prev_x, self.prev_y = self.curr_x, self.curr_y
 
-                elif fingers[2]== 1 and fingers[0]==1 and fingers[4]==1 and fingers[3]==0 and fingers[1]==0 and self.lammo==False:
+                elif fingers == [1,0,1,0,1] and [self.lammo==False]:
                     #print("snappp")
                     self.lammo=True    
                     webbrowser.open("https://www.youtube.com/watch?v=hw2eOKy5w9g&pp=ygUQbW91bnRhaW4gZGV3IGRhcg%3D%3D", new=2)
 
-                elif fingers[0]== 1 and fingers[1]==1 and fingers[2]==1 and fingers[3]==1 and fingers[4]==0 and self.dammo==False:
+                elif fingers == [1,1,1,1,0] and self.dammo==False:
                     #print("ppp") 
                     self.dammo=True
                     #subprocess.run(r'"Tera Term.lnk"')
@@ -297,12 +347,12 @@ class VirtualMouse:
                     time.sleep(0.5)
                     p.terminate()
 
-                elif fingers[0] == 0 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
+                elif fingers == [0,0,0,0,1]:
                     length, img, lineInfo = self.detector.findDistance(16, 20, img)
                     if length > 60:
                         exit()
 
-                elif fingers[0] == 1 and fingers[1] == 1 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
+                elif fingers == [1,1,0,0,1]:
                     # print("recording")
                     # displayed_text = ""
                     # full_sentences = []
@@ -314,15 +364,8 @@ class VirtualMouse:
                     #     if "stop." in list_of_str or "stop" in list_of_str or "exit" in list_of_str or "exit." in list_of_str:
                     #         self.kbd.write("\b\b\b\b\b")
                     #         break
-                    self.speech.record_audio(duration=4)
-                    text = self.speech.transcribe()
-                    string = " ".join(text)
-                    for char in string:
-                        self.kb.press(char)
-                        self.kb.release(char)
-
-
-                    time.sleep(0.2)
+                    if self.record_timer == 0:
+                        self.perform_record()
 
                 elif all(lmlist[i][2] > 0 for i in [8, 12, 16, 20]):
                     cursor_x = np.interp(x3, (self.frameR, self.width - self.frameR), (0, self.screen_width))
@@ -333,21 +376,21 @@ class VirtualMouse:
 
                     # Check if sliding left and movement surpasses the threshold
                     if self.curr_x < self.prev_x and abs(self.curr_x - self.prev_x) > self.x_threshold:
-                        self.slide_counter += 1
-                        if self.slide_counter > 3:
-                            print("slide left")
-                            self.kb.press(Key.left)  # Simulate pressing the left arrow key
-                            self.kb.release(Key.left) 
-                            self.slide_counter = 0
-                            time.sleep(0.7) # Simulate releasing the left arrow key
+                        self.slide_counter_left += 1
+                        self.slide_counter_right = 0
+                        if self.slide_counter_left > 3:
+                            if self.slide_left_timer == 0:
+                                self.perform_slide_left() 
+                            self.slide_counter_left = 0
                     elif self.curr_x > self.prev_x and abs(self.curr_x - self.prev_x) > self.x_threshold:
-                        self.slide_counter += 1
-                        if self.slide_counter > 6:
-                            print("slide right")
-                            self.kb.press(Key.right)  # Simulate pressing the left arrow key
-                            self.kb.release(Key.right)
-                            self.slide_counter = 0
-                            time.sleep(0.7) # Simulate releasing the left arrow key  
+                        self.slide_counter_right += 1
+                        self.slide_counter_left = 0
+                        if self.slide_counter_right > 3:
+                            if self.slide_right_timer == 0:
+                                self.perform_slide_right()
+                            self.slide_counter_right = 0 
+                            
+                            
                     self.prev_x, self.prev_y = self.curr_x, self.curr_y
 
             cTime = time.time()
@@ -356,6 +399,12 @@ class VirtualMouse:
             cv2.putText(img, str(int(fps)), (20, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
             cv2.imshow("Image", img)
             cv2.waitKey(1)
+        
+            self.click_timer = max(0, self.click_timer - 1)
+            self.right_click_timer = max(0, self.right_click_timer - 1)
+            self.record_timer = max(0, self.record_timer - 1)
+            self.slide_right_timer = max(0, self.slide_right_timer - 1)
+            self.slide_left_timer = max(0, self.slide_left_timer - 1)
 
 if __name__ == "__main__":
     vm = VirtualMouse()
