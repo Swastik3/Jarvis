@@ -1,6 +1,7 @@
 from threading import Thread
 import cv2
 import time
+from VirtualMouse import VirtualMouse
 
 def play_video():
     cap = cv2.VideoCapture("./vid.mp4")
@@ -14,7 +15,7 @@ def play_video():
             if cv2.waitKey(25) & 0xFF == ord('q'):  # wait for a key press for 25 ms
                 break
         else:
-            print("Video error")
+            print("Video ended")
             break
     
     cap.release()
@@ -22,4 +23,5 @@ def play_video():
 
 t1 = Thread(target=play_video)
 t1.start()
-print("main thread done")
+vm = VirtualMouse()
+vm.run()
