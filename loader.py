@@ -1,51 +1,27 @@
-from itertools import cycle
-from shutil import get_terminal_size
 from threading import Thread
-from time import sleep
+import cv2
+import time
 from VirtualMouse import VirtualMouse
-from bvPlayer import bvPlayer
 
-class Loader:
-    def __init__(self, desc="Loading...", end="Done!", timeout=0.1):
-        """
-        A loader-like context manager
+def play_video():
+    cap = cv2.VideoCapture("./vid.mp4")
+    cv2.namedWindow("Video Player", cv2.WINDOW_NORMAL)
+    cv2.resizeWindow("Video Player", 1280, 720)
 
-        Args:
-            desc (str, optional): The loader's description. Defaults to "Loading...".
-            end (str, optional): Final print. Defaults to "Done!".
-            timeout (float, optional): Sleep time between prints. Defaults to 0.1.
-        """
-        self.desc = desc
-        self.end = end
-        self.timeout = timeout
+    while (cap.isOpened()):
+        success, frame = cap.read()
+        if success:
+            cv2.imshow('Video Player', frame)
+            if cv2.waitKey(25) & 0xFF == ord('q'):  # wait for a key press for 25 ms
+                break
+        else:
+            print("Video ended")
+            break
+    
+    cap.release()
+    cv2.destroyAllWindows()
 
-        self._thread = Thread(target=self._animate, daemon=True)
-        self.steps = ["⢿", "⣻", "⣽", "⣾", "⣷", "⣯", "⣟", "⡿"]
-        self.done = False
-
-    def start(self):
-        self._thread.start()
-        return self
-
-    def _animate(self):
-        bvPlayer("vid.mp4")
-
-    def __enter__(self):
-        self.start()
-
-    def stop(self):
-        self.done = True
-        cols = get_terminal_size((80, 20)).columns
-        print("\r" + " " * cols, end="", flush=True)
-        print(f"\r{self.end}", flush=True)
-
-    def __exit__(self, exc_type, exc_value, tb):
-        # handle exceptions with those variables ^
-        self.stop()
-
-
-if __name__ == "__main__":
-    loader = Loader("Loading with object...", "booting virtual mouse...", 0.05).start()
-    vm = VirtualMouse()
-    loader.stop()
-    vm.run()                                                                                                                                            
+t1 = Thread(target=play_video)
+t1.start()
+vm = VirtualMouse()
+vm.run()
