@@ -177,50 +177,45 @@ class VirtualMouse:
 
     def guitar(self):
    
-     while True:
-        success, img = self.cap.read()
-        img = self.detector.findHands(img)                       # Finding the hand
-        lmlist, bbox = self.detector.findPosition(img)           # Getting position of hand
+        while True:
+            success, img = self.cap.read()
+            img = self.detector.findHands(img)                       # Finding the hand
+            lmlist, bbox = self.detector.findPosition(img)           # Getting position of hand
 
-        if len(lmlist)!=0:
-            x1, y1 = lmlist[8][1:]
-            x2, y2 = lmlist[12][1:]
-            x3, y3 = lmlist[16][1:]
-            x4, y4 = lmlist[20][1:]
-            x5, y5 = lmlist[20][1:]
+            if len(lmlist)!=0:
 
-            fingers = self.detector.fingersUp()      # Checking if fingers are upwards
-            cv2.rectangle(img, (self.frameR, self.frameR), (self.width - self.frameR, self.height - self.frameR), (255, 0, 255), 2) 
+                fingers = self.detector.fingersUp()      # Checking if fingers are upwards
+                cv2.rectangle(img, (self.frameR, self.frameR), (self.width - self.frameR, self.height - self.frameR), (255, 0, 255), 2) 
 
-            if fingers[0] == 0 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 0 and fingers[4] == 0:
-                print("E")
-                playsound(r'sounds\e-64kb_0aT5gGDo.mp3')
+                if fingers[0] == 0 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 0 and fingers[4] == 0:
+                    print("E")
+                    playsound.playsound(r'sounds\e-64kb_0aT5gGDo.mp3')
 
-            elif fingers[0] == 1 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 1 and fingers[4] == 0:
-                print("C")
-                playsound(r'sounds\c-64kb_tGx61ISi.mp3')
+                elif fingers[0] == 1 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 1 and fingers[4] == 0:
+                    print("C")
+                    playsound.playsound(r'sounds\c-64kb_tGx61ISi.mp3')
 
-            elif fingers[0] == 1 and fingers[1] == 1 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
-                print("G")
-                playsound(r'sounds\g-64kb_kaTudOcK.mp3')
+                elif fingers[0] == 1 and fingers[1] == 1 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
+                    print("G")
+                    playsound.playsound(r'sounds\g-64kb_kaTudOcK.mp3')
 
-            elif fingers[0] == 1 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 0 and fingers[4] == 0:
-                print("D")
-                playsound(r'sounds\d-64kb_4ymAcwfO.mp3')
+                elif fingers[0] == 1 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 0 and fingers[4] == 0:
+                    print("D")
+                    playsound.playsound(r'sounds\d-64kb_4ymAcwfO.mp3')
 
-            elif fingers[0] == 0 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
-                length, img, lineInfo = self.detector.findDistance(16, 20, img)
-                if length > 60:
-                    print("exiting")
-                    return
+                elif fingers[0] == 0 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
+                    length, img, lineInfo = self.detector.findDistance(16, 20, img)
+                    if length > 60:
+                        print("exiting")
+                        return
 
 
-        cTime = time.time()
-        fps = 1/(cTime-pTime)
-        pTime = cTime
-        cv2.putText(img, str(int(fps)), (20, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
-        cv2.imshow("Image", img)
-        cv2.waitKey(1)
+            cTime = time.time()
+            fps = 1/(cTime-self.pTime)
+            self.pTime = cTime
+            cv2.putText(img, str(int(fps)), (20, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
+            cv2.imshow("Image", img)
+            cv2.waitKey(1)
 
     def run(self):
         while True:
@@ -340,12 +335,12 @@ class VirtualMouse:
                     #print("ppp") 
                     self.dammo=True
                     #subprocess.run(r'"Tera Term.lnk"')
-                    p = subprocess.Popen([r"C:\Users\sange\OneDrive\Documents\teraterm\ttermpro.exe", '/SHOW'])
+                    #p = subprocess.Popen([r"C:\Users\sange\OneDrive\Documents\teraterm\ttermpro.exe", '/SHOW'])
                 
                     self.arduino_control()
                     time.sleep(0.5)
-                    p.terminate()
-                elif fingers[0]== 0 and fingers[1]==0 and fingers[2]==1 and fingers[3]==1 and fingers[4]==1 and gammo==False:
+                    #p.terminate()
+                elif fingers[0]== 0 and fingers[1]==0 and fingers[2]==1 and fingers[3]==1 and fingers[4]==1 and self.gammo==False:
                     gammo=True
                     self.guitar()
                     time.sleep(0.5)
