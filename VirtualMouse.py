@@ -327,7 +327,7 @@ class VirtualMouse:
                     length, img, lineInfo = self.detector.findDistance(4, 8, img)
 
                     if self.curr_x > 2000 or self.curr_y > 1400 or self.curr_x < 200 or self.curr_y < 100:
-                        if length < 70:
+                        if length < 50:
                             cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
                             if self.click_timer == 0:
                                 self.can_double_click = True
@@ -384,7 +384,7 @@ class VirtualMouse:
                     length, img, lineInfo = self.detector.findDistance(8, 16, img)
                     #print(length)
 
-                    if length < 40:
+                    if length < 60:
                         pyautogui.scroll(80)
 
                     if length > 100:
@@ -436,6 +436,10 @@ class VirtualMouse:
                         if self.exit_timer == 0:
                             print("exiting")
                             exit()
+                
+                elif fingers == [1,1,0,0,1]:    
+                    if self.record_timer == 0:
+                        self.perform_record()
 
                 elif all(lmlist[i][2] > 0 for i in [8, 12, 16, 20]):
                     cursor_x = np.interp(x3, (frameR, self.width - frameR), (0, self.screen_width))
@@ -463,9 +467,7 @@ class VirtualMouse:
                             
                     self.prev_x, self.prev_y = self.curr_x, self.curr_y
 
-                elif fingers == [1,1,0,0,1]:    
-                    if self.record_timer == 0:
-                        self.perform_record()
+                
 
             cTime = time.time()
             fps = 1/(cTime - self.pTime)
