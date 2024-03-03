@@ -17,6 +17,8 @@ import subprocess
 from RealtimeSTT import AudioToTextRecorder
 import os
 import playsound as playsound
+from pydub import AudioSegment
+
 
 
 ### Variables Declaration
@@ -176,7 +178,7 @@ class VirtualMouse:
             cv2.waitKey(1)
 
     def guitar(self):
-   
+        stacked_sounds = AudioSegment.silent(duration=0)
         while True:
             success, img = self.cap.read()
             img = self.detector.findHands(img)                       # Finding the hand
@@ -190,23 +192,31 @@ class VirtualMouse:
                 if fingers[0] == 0 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 0 and fingers[4] == 0:
                     print("E")
                     playsound.playsound(r'sounds\e-64kb_0aT5gGDo.mp3')
+                    stacked_sounds+= AudioSegment.from_mp3(r'sounds\e-64kb_0aT5gGDo.mp3')
 
                 elif fingers[0] == 1 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 1 and fingers[4] == 0:
                     print("C")
                     playsound.playsound(r'sounds\c-64kb_tGx61ISi.mp3')
+                    stacked_sounds+= AudioSegment.from_mp3(r'sounds\c-64kb_tGx61ISi.mp3')
 
                 elif fingers[0] == 1 and fingers[1] == 1 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
                     print("G")
                     playsound.playsound(r'sounds\g-64kb_kaTudOcK.mp3')
+                    stacked_sounds+= AudioSegment.from_mp3(r'sounds\g-64kb_kaTudOcK.mp3')
 
                 elif fingers[0] == 1 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 0 and fingers[4] == 0:
                     print("D")
                     playsound.playsound(r'sounds\d-64kb_4ymAcwfO.mp3')
+                    stacked_sounds+= AudioSegment.from_mp3(r'sounds\d-64kb_4ymAcwfO.mp3')
 
                 elif fingers[0] == 0 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
                     length, img, lineInfo = self.detector.findDistance(16, 20, img)
                     if length > 60:
                         print("exiting")
+                        stacked_sounds.export(os.path.join("sounds", "stacked_sounds.mp3"), format="mp3")
+                        time.sleep(0.3)
+                        playsound.playsound(r'sounds\stacked_sounds.mp3')
+                        time.sleep(0.3)
                         return
 
 
