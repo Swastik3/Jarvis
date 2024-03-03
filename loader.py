@@ -3,7 +3,7 @@ import cv2
 import time
 
 def play_video():
-    cap = cv2.VideoCapture("../vid.mp4")
+    cap = cv2.VideoCapture("./vid.mp4")
     cv2.namedWindow("Video Player", cv2.WINDOW_NORMAL)
     cv2.resizeWindow("Video Player", 1280, 720)
 
