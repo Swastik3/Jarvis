@@ -239,7 +239,7 @@ while True:
             prev_x, prev_y = curr_x, curr_y
             length, img, lineInfo = detector.findDistance(4, 8, img)
 
-            if curr_x > 2000 and curr_y > 1400:
+            if curr_x > 2000 or curr_y > 1400 or curr_x < 200 or curr_y < 100:
                 if length < 60:
                     cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
                     action.click()
