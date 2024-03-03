@@ -153,9 +153,10 @@ def arduino_control():
                 ricko == True
                 time.sleep(0.5)
             
-             elif fingers[0] == 1 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 0 and fingers[4] == 0 and shitto == False:
+            elif fingers[0] == 1 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 0 and fingers[4] == 0 and shitto == False:
                 kb.press("h")
                 shitto = True
+                time.sleep(0.5)
 
             elif fingers[0] == 0 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
                 length, img, lineInfo = detector.findDistance(16, 20, img)
