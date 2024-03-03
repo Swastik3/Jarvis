@@ -436,10 +436,6 @@ class VirtualMouse:
                             print("exiting")
                             exit()
 
-                elif fingers == [1,1,0,0,1]:    
-                    if self.record_timer == 0:
-                        self.perform_record()
-
                 elif all(lmlist[i][2] > 0 for i in [8, 12, 16, 20]):
                     cursor_x = np.interp(x3, (frameR, self.width - frameR), (0, self.screen_width))
                     cursor_y = np.interp(y3, (frameR, self.height - frameR), (0, self.screen_height))
@@ -465,6 +461,10 @@ class VirtualMouse:
                             
                             
                     self.prev_x, self.prev_y = self.curr_x, self.curr_y
+
+                elif fingers == [1,1,0,0,1]:    
+                    if self.record_timer == 0:
+                        self.perform_record()
 
             cTime = time.time()
             fps = 1/(cTime - self.pTime)
