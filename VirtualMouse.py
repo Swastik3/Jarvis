@@ -29,7 +29,6 @@ class VirtualMouse:
         self.pTime = 0               # Used to calculate frame rate
         self.width = 640             # Width of Camera
         self.height = 480         # Height of Camera
-        self.frameR = 100            # Frame Rate
         self.smoothening = 6         # self.smoothening Factor
         self.prev_x, self.prev_y = 0, 0   # Previous coordinates
         self.curr_x, self.curr_y = 0, 0   # Current coordinates
@@ -71,6 +70,7 @@ class VirtualMouse:
         self.record_timer = 0
         self.slide_timer = 0
         self.exit_timer = 0
+        self.can_double_click = True
         
 # Getting the screen size
 
@@ -115,6 +115,7 @@ class VirtualMouse:
     def arduino_control(self):
         ricko = False
         shitto = False
+        frameR = 100
         while True:
             success, img = self.cap.read()
             img = self.detector.findHands(img)                       # Finding the hand
@@ -128,11 +129,11 @@ class VirtualMouse:
                 #x5, y5 = lmlist[20][1:]
 
                 fingers = self.detector.fingersUp()      # Checking if fingers are upwards
-                cv2.rectangle(img, (self.frameR, self.frameR), (self.width - self.frameR, self.height - self.frameR), (255, 0, 255), 2)   # Creating boundary box
+                cv2.rectangle(img, (frameR, frameR), (self.width - frameR, self.height - frameR), (255, 0, 255), 2)   # Creating boundary box
 
                 if fingers == [1,1,0,0,0]:     # If fore finger is up and middle finger is down
-                    cursor_x = np.interp(x3, (self.frameR,self.width-self.frameR), (0,self.screen_width))
-                    cursor_y = np.interp(y3, (self.frameR, self.height-self.frameR), (0, self.screen_height))
+                    cursor_x = np.interp(x3, (frameR,self.width-frameR), (0,self.screen_width))
+                    cursor_y = np.interp(y3, (frameR, self.height-frameR), (0, self.screen_height))
 
                     #print(bbox)
 
@@ -232,6 +233,7 @@ class VirtualMouse:
         print("entering guitar mode")
         timer_duration = 15
         guitar_sound_timer = 0
+        frameR = 100
         while True:
             success, img = self.cap.read()
             img = self.detector.findHands(img)                       # Finding the hand
@@ -241,7 +243,7 @@ class VirtualMouse:
             if len(lmlist)!=0:
 
                 fingers = self.detector.fingersUp()      # Checking if fingers are upwards
-                cv2.rectangle(img, (self.frameR, self.frameR), (self.width - self.frameR, self.height - self.frameR), (255, 0, 255), 2) 
+                cv2.rectangle(img, (frameR, frameR), (self.width - frameR, self.height - frameR), (255, 0, 255), 2) 
 
                 if fingers == [0,1,1,0,0]:
                     if guitar_sound_timer == 0:
@@ -293,6 +295,7 @@ class VirtualMouse:
             guitar_sound_timer = max(0, guitar_sound_timer - 1)
 
     def run(self):
+        frameR = 100
         while True:
             success, img = self.cap.read()
             img = self.detector.findHands(img)                       # Finding the hand
@@ -307,11 +310,11 @@ class VirtualMouse:
                 #x5, y5 = lmlist[20][1:]
 
                 fingers = self.detector.fingersUp()      # Checking if fingers are upwards
-                cv2.rectangle(img, (self.frameR, self.frameR), (self.width - self.frameR, self.height - self.frameR), (255, 0, 255), 2)   # Creating boundary box
+                cv2.rectangle(img, (frameR, frameR), (self.width - frameR, self.height - frameR), (255, 0, 255), 2)   # Creating boundary box
                 
                 if fingers == [1,1,0,0,0]:
-                    cursor_x = np.interp(x3, (self.frameR,self.width-self.frameR), (0,self.screen_width))
-                    cursor_y = np.interp(y3, (self.frameR, self.height-self.frameR), (0, self.screen_height))
+                    cursor_x = np.interp(x3, (frameR,self.width-frameR), (0,self.screen_width))
+                    cursor_y = np.interp(y3, (frameR, self.height-frameR), (0, self.screen_height))
 
                     #print(bbox)
 
@@ -327,12 +330,14 @@ class VirtualMouse:
                         if length < 70:
                             cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
                             if self.click_timer == 0:
+                                self.can_double_click = True
                                 self.perform_click()
                             
                             #TODO: do we need this?
                             if length < 40:
                                 cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
-                                if self.click_timer == 0:
+                                if self.can_double_click and 12 < self.click_timer < 18:
+                                    self.can_double_click = False
                                     print("shady click")
                                     self.perform_click()
                             else:
@@ -343,20 +348,20 @@ class VirtualMouse:
                         cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
                            # Perform Click
                         if self.click_timer == 0:
-                                self.perform_click()
+                            self.can_double_click = True
+                            self.perform_click()
                         
                         if length < 20:
                             cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
                             #autopy.action.click()    # Perform Click
-                            if self.click_timer == 0:
+                            if 15 < self.click_timer < 18 and self.can_double_click:
+                                print("double click")
+                                self.can_double_click = False
                                 self.perform_click()
-                        else:
-                            #time.sleep(0.25)
-                            pass
 
-                elif fingers == [1,1,1,0,0]:     # If fore finger is up and middle finger is down
-                        cursor_x = np.interp(x3, (self.frameR,self.width-self.frameR), (0,self.screen_width))
-                        cursor_y = np.interp(y3, (self.frameR, self.height-self.frameR), (0, self.screen_height))
+                elif fingers == [1,1,1,0,0]:
+                        cursor_x = np.interp(x3, (frameR,self.width-frameR), (0,self.screen_width))
+                        cursor_y = np.interp(y3, (frameR, self.height-frameR), (0, self.screen_height))
 
                         #print(bbox)
 
@@ -396,8 +401,8 @@ class VirtualMouse:
                         action.release(button = "left")
                         self.flag = 0
 
-                    cursor_x = np.interp(x3, (self.frameR,self.width-self.frameR), (0,self.screen_width))
-                    cursor_y = np.interp(y3, (self.frameR, self.height-self.frameR), (0, self.screen_height))
+                    cursor_x = np.interp(x3, (frameR,self.width-frameR), (0,self.screen_width))
+                    cursor_y = np.interp(y3, (frameR, self.height-frameR), (0, self.screen_height))
 
                     self.curr_x = self.prev_x + (cursor_x - self.prev_x)/self.smoothening
                     self.curr_y = self.prev_y + (cursor_y - self.prev_y) / self.smoothening
@@ -436,8 +441,8 @@ class VirtualMouse:
                         self.perform_record()
 
                 elif all(lmlist[i][2] > 0 for i in [8, 12, 16, 20]):
-                    cursor_x = np.interp(x3, (self.frameR, self.width - self.frameR), (0, self.screen_width))
-                    cursor_y = np.interp(y3, (self.frameR, self.height - self.frameR), (0, self.screen_height))
+                    cursor_x = np.interp(x3, (frameR, self.width - frameR), (0, self.screen_width))
+                    cursor_y = np.interp(y3, (frameR, self.height - frameR), (0, self.screen_height))
 
                     self.curr_x = self.prev_x + (cursor_x - self.prev_x) / self.smoothening
                     self.curr_y = self.prev_y + (cursor_y - self.prev_y) / self.smoothening
