@@ -19,6 +19,7 @@ import os
 import playsound as playsound
 
 from threading import Thread
+import pydub
 
 
 ### Variables Declaration
@@ -69,6 +70,7 @@ class VirtualMouse:
         self.right_click_timer = 0
         self.record_timer = 0
         self.slide_timer = 0
+        self.exit_timer = 0
         
 # Getting the screen size
 
@@ -209,9 +211,11 @@ class VirtualMouse:
                 elif fingers == [0,0,0,0,1]:
                     length, img, lineInfo = self.detector.findDistance(16, 20, img)
                     if length > 60:
-                        #print("exiting")
-                        self.dammo = False
-                        return
+                        if self.exit_timer == 0:
+                            print("exiting")
+                            self.dammo = False
+                            self.exit_timer = 60
+                            return
 
             cTime = time.time()
             fps = 1/(cTime-self.pTime)
@@ -220,9 +224,13 @@ class VirtualMouse:
             cv2.imshow("Image", img)
             cv2.waitKey(1)
 
+    
     def guitar(self):
+        stack_sound = pydub.AudioSegment.silent(duration=0)
+        
+        
         print("entering guitar mode")
-        timer_duration = 30
+        timer_duration = 15
         guitar_sound_timer = 0
         while True:
             success, img = self.cap.read()
@@ -239,12 +247,14 @@ class VirtualMouse:
                     if guitar_sound_timer == 0:
                         print("E")
                         Thread(target=playsound.playsound, args=(r'sounds\e-64kb_0aT5gGDo.mp3',)).start()
+                        stack_sound += pydub.AudioSegment.from_file(r'sounds\e-64kb_0aT5gGDo.mp3')
                         guitar_sound_timer = timer_duration
 
                 elif fingers == [1,1,1,1,0]:
                     if guitar_sound_timer == 0:
                         print("C")
                         Thread(target=playsound.playsound, args=(r'sounds\c-64kb_tGx61ISi.mp3',)).start()
+                        stack_sound += pydub.AudioSegment.from_file(r'sounds\c-64kb_tGx61ISi.mp3')
                         guitar_sound_timer = timer_duration
                     
 
@@ -252,6 +262,7 @@ class VirtualMouse:
                     if guitar_sound_timer == 0:
                         print("G")
                         Thread(target=playsound.playsound, args=(r'sounds\g-64kb_kaTudOcK.mp3',)).start()
+                        stack_sound += pydub.AudioSegment.from_file(r'sounds\g-64kb_kaTudOcK.mp3')
                         guitar_sound_timer = timer_duration
                     
 
@@ -259,13 +270,17 @@ class VirtualMouse:
                     if guitar_sound_timer == 0:
                         print("D")
                         Thread(target=playsound.playsound, args=(r'sounds\d-64kb_4ymAcwfO.mp3',)).start()
+                        stack_sound += pydub.AudioSegment.from_file(r'sounds\d-64kb_4ymAcwfO.mp3')
                         guitar_sound_timer = timer_duration
                     
 
                 elif fingers == [0,0,0,0,1]:
                     length, img, lineInfo = self.detector.findDistance(16, 20, img)
+                    stack_sound.export(r"tmp\guitar_stack.mp3", format="mp3")
+                    #playsound.playsound(r"tmp\guitar_stack.mp3")
                     if length > 60:
                         print("exiting")
+                        self.exit_timer = 60
                         return
 
 
@@ -412,7 +427,9 @@ class VirtualMouse:
                 elif fingers == [0,0,0,0,1]:
                     length, img, lineInfo = self.detector.findDistance(16, 20, img)
                     if length > 60:
-                        exit()
+                        if self.exit_timer == 0:
+                            print("exiting")
+                            exit()
 
                 elif fingers == [1,1,0,0,1]:
                     # print("recording")
@@ -466,7 +483,7 @@ class VirtualMouse:
             self.right_click_timer = max(0, self.right_click_timer - 1)
             self.record_timer = max(0, self.record_timer - 1)
             self.slide_timer = max(0, self.slide_timer - 1)
-
+            self.exit_timer = max(0, self.exit_timer - 1)
 if __name__ == "__main__":
     vm = VirtualMouse()
     vm.run()
