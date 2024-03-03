@@ -2,11 +2,11 @@ import os
 if os.name == 'nt': import mouse
 else: import macmouse
 
-def click():
+def click(side="left"):
     try:
-        mouse.click()
+        mouse.click(side)
     except: 
-        macmouse.click()
+        macmouse.click(side)
 
 def move(x, y):
     try: 
