@@ -102,7 +102,7 @@ class VirtualMouse:
             self.kb.press(Key.right)  # Simulate pressing the right arrow key
             self.kb.release(Key.right)
         Thread(target=slide_right).start()
-        self.slide_right_timer = 20
+        self.slide_timer = 30
     
     def perform_slide_left(self):
         print("sliding left")
@@ -110,7 +110,7 @@ class VirtualMouse:
             self.kb.press(Key.left)  # Simulate pressing the left arrow key
             self.kb.release(Key.left)
         Thread(target=slide_left).start()
-        self.slide_left_timer = 20
+        self.slide_timer = 30
     
     def arduino_control(self):
         ricko = False
@@ -382,6 +382,7 @@ class VirtualMouse:
 
                 elif fingers == [0,1,1,1,0]:
                     length, img, lineInfo = self.detector.findDistance(8, 16, img)
+                    #print(length)
 
                     if length < 40:
                         pyautogui.scroll(80)
@@ -447,14 +448,14 @@ class VirtualMouse:
                     if self.curr_x < self.prev_x and abs(self.curr_x - self.prev_x) > self.x_threshold:
                         self.slide_counter_left += 1
                         self.slide_counter_right = 0
-                        if self.slide_counter_left > 3:
+                        if self.slide_counter_left > 6:
                             if self.slide_timer == 0:
                                 self.perform_slide_left() 
                             self.slide_counter_left = 0
                     elif self.curr_x > self.prev_x and abs(self.curr_x - self.prev_x) > self.x_threshold:
                         self.slide_counter_right += 1
                         self.slide_counter_left = 0
-                        if self.slide_counter_right > 3:
+                        if self.slide_counter_right > 6:
                             if self.slide_timer == 0:
                                 self.perform_slide_right()
                             self.slide_counter_right = 0 
