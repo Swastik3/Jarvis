@@ -3,6 +3,7 @@ from shutil import get_terminal_size
 from threading import Thread
 from time import sleep
 from Virtual_Mouse import VirtualMouse
+from bvPlayer import bvPlayer
 
 class Loader:
     def __init__(self, desc="Loading...", end="Done!", timeout=0.1):
@@ -27,8 +28,7 @@ class Loader:
         return self
 
     def _animate(self):
-        # TODO: add animation
-        pass
+        bvPlayer("vid.mp4")
 
     def __enter__(self):
         self.start()
