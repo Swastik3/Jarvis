@@ -27,10 +27,10 @@ import pydub
 class VirtualMouse:
     def __init__(self):
         self.pTime = 0               # Used to calculate frame rate
-        self.width = 1000             # Width of Camera
-        self.height = 700          # Height of Camera
+        self.width = 640             # Width of Camera
+        self.height = 480         # Height of Camera
         self.frameR = 100            # Frame Rate
-        self.smoothening = 8         # self.smoothening Factor
+        self.smoothening = 6         # self.smoothening Factor
         self.prev_x, self.prev_y = 0, 0   # Previous coordinates
         self.curr_x, self.curr_y = 0, 0   # Current coordinates
         self.flag = 0
@@ -87,14 +87,14 @@ class VirtualMouse:
     def perform_record(self):
         print("recording")
         def record_inner(speech,kb):
-            speech.record_audio(duration=4)
+            speech.record_audio(duration=2)
             text = speech.transcribe()
             string = " ".join(text)
             for char in string:
                 kb.press(char)
                 kb.release(char)
         Thread(target=record_inner, args=(self.speech,self.kb)).start()
-        self.record_timer = 60
+        self.record_timer = 200
     
     def perform_slide_right(self):
         print("sliding right")
@@ -121,11 +121,11 @@ class VirtualMouse:
             lmlist, bbox = self.detector.findPosition(img)           # Getting position of hand
 
             if len(lmlist)!=0:
-                x1, y1 = lmlist[8][1:]
-                x2, y2 = lmlist[12][1:]
+                #x1, y1 = lmlist[8][1:]
+                #x2, y2 = lmlist[12][1:]
                 x3, y3 = lmlist[16][1:]
-                x4, y4 = lmlist[20][1:]
-                x5, y5 = lmlist[20][1:]
+                #x4, y4 = lmlist[20][1:]
+                #x5, y5 = lmlist[20][1:]
 
                 fingers = self.detector.fingersUp()      # Checking if fingers are upwards
                 cv2.rectangle(img, (self.frameR, self.frameR), (self.width - self.frameR, self.height - self.frameR), (255, 0, 255), 2)   # Creating boundary box
@@ -300,16 +300,16 @@ class VirtualMouse:
             #tracker.track_eye_step()
 
             if len(lmlist)!=0:
-                x1, y1 = lmlist[8][1:]
-                x2, y2 = lmlist[12][1:]
+                #x1, y1 = lmlist[8][1:]
+                #x2, y2 = lmlist[12][1:]
                 x3, y3 = lmlist[16][1:]
-                x4, y4 = lmlist[20][1:]
-                x5, y5 = lmlist[20][1:]
+                #x4, y4 = lmlist[20][1:]
+                #x5, y5 = lmlist[20][1:]
 
                 fingers = self.detector.fingersUp()      # Checking if fingers are upwards
                 cv2.rectangle(img, (self.frameR, self.frameR), (self.width - self.frameR, self.height - self.frameR), (255, 0, 255), 2)   # Creating boundary box
                 
-                if fingers == [1,1,0,0,0]:     # If fore finger is up and middle finger is down
+                if fingers == [1,1,0,0,0]:
                     cursor_x = np.interp(x3, (self.frameR,self.width-self.frameR), (0,self.screen_width))
                     cursor_y = np.interp(y3, (self.frameR, self.height-self.frameR), (0, self.screen_height))
 
@@ -324,7 +324,7 @@ class VirtualMouse:
                     length, img, lineInfo = self.detector.findDistance(4, 8, img)
 
                     if self.curr_x > 2000 or self.curr_y > 1400 or self.curr_x < 200 or self.curr_y < 100:
-                        if length < 60:
+                        if length < 70:
                             cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
                             if self.click_timer == 0:
                                 self.perform_click()
@@ -431,18 +431,7 @@ class VirtualMouse:
                             print("exiting")
                             exit()
 
-                elif fingers == [1,1,0,0,1]:
-                    # print("recording")
-                    # displayed_text = ""
-                    # full_sentences = []
-                    # clear_console()
-                    # while True:
-                    #     print("in loop")
-                    #     recorder.text(process_text)
-                    #     list_of_str = displayed_text.lower().split()
-                    #     if "stop." in list_of_str or "stop" in list_of_str or "exit" in list_of_str or "exit." in list_of_str:
-                    #         self.kbd.write("\b\b\b\b\b")
-                    #         break
+                elif fingers == [1,1,0,0,1]:    
                     if self.record_timer == 0:
                         self.perform_record()
 
