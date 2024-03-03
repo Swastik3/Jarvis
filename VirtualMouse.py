@@ -328,8 +328,8 @@ class VirtualMouse:
                     self.prev_x, self.prev_y = self.curr_x, self.curr_y
                     length, img, lineInfo = self.detector.findDistance(4, 8, img)
 
-                    if self.curr_x > 2000 or self.curr_y > 1400 or self.curr_x < 200 or self.curr_y < 100:
-                        if length < 50:
+                    if self.curr_x > 2050 or self.curr_y > 1500 or self.curr_x < 120 or self.curr_y < 80:
+                        if length < 55:
                             cv2.circle(img, (lineInfo[4], lineInfo[5]), 15, (0, 255, 0), cv2.FILLED)
                             if self.click_timer == 0:
                                 self.can_double_click = True
@@ -395,7 +395,17 @@ class VirtualMouse:
                 elif fingers == [0,1,1,0,0]:
                     length, img, lineInfo = self.detector.findDistance(8, 12, img)
 
-                    if length < 40 and self.flag != 1:
+                    if self.curr_x > 2050 or self.curr_y > 1500 or self.curr_x < 120 or self.curr_y < 80:
+                        if length < 50 and self.flag != 1:
+                            action.press(button = "left")
+                            self.flag = 1
+
+                        elif self.flag == 1 and length > 35:
+                            #print("released")
+                            action.release(button = "left")
+                            self.flag = 0
+
+                    elif length < 40 and self.flag != 1:
                         #print("pressed")
                         action.press(button = "left")
                         self.flag = 1
