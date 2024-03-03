@@ -68,8 +68,7 @@ class VirtualMouse:
         self.click_timer = 0
         self.right_click_timer = 0
         self.record_timer = 0
-        self.slide_right_timer = 0
-        self.slide_left_timer = 0
+        self.slide_timer = 0
         
 # Getting the screen size
 
@@ -98,7 +97,7 @@ class VirtualMouse:
     def perform_slide_right(self):
         print("sliding right")
         def slide_right():
-            self.kb.press(Key.right)  # Simulate pressing the left arrow key
+            self.kb.press(Key.right)  # Simulate pressing the right arrow key
             self.kb.release(Key.right)
         Thread(target=slide_right).start()
         self.slide_right_timer = 20
@@ -442,14 +441,14 @@ class VirtualMouse:
                         self.slide_counter_left += 1
                         self.slide_counter_right = 0
                         if self.slide_counter_left > 3:
-                            if self.slide_left_timer == 0:
+                            if self.slide_timer == 0:
                                 self.perform_slide_left() 
                             self.slide_counter_left = 0
                     elif self.curr_x > self.prev_x and abs(self.curr_x - self.prev_x) > self.x_threshold:
                         self.slide_counter_right += 1
                         self.slide_counter_left = 0
                         if self.slide_counter_right > 3:
-                            if self.slide_right_timer == 0:
+                            if self.slide_timer == 0:
                                 self.perform_slide_right()
                             self.slide_counter_right = 0 
                             
@@ -457,7 +456,7 @@ class VirtualMouse:
                     self.prev_x, self.prev_y = self.curr_x, self.curr_y
 
             cTime = time.time()
-            fps = 1/(cTime-self.pTime)
+            fps = 1/(cTime - self.pTime)
             self.pTime = cTime
             cv2.putText(img, str(int(fps)), (20, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
             cv2.imshow("Image", img)
@@ -466,8 +465,7 @@ class VirtualMouse:
             self.click_timer = max(0, self.click_timer - 1)
             self.right_click_timer = max(0, self.right_click_timer - 1)
             self.record_timer = max(0, self.record_timer - 1)
-            self.slide_right_timer = max(0, self.slide_right_timer - 1)
-            self.slide_left_timer = max(0, self.slide_left_timer - 1)
+            self.slide_timer = max(0, self.slide_timer - 1)
 
 if __name__ == "__main__":
     vm = VirtualMouse()
