@@ -72,6 +72,8 @@ class VirtualMouse:
         self.exit_timer = 0
         self.can_double_click = True
         
+        self.record_counter = 0
+        
 # Getting the screen size
 
     def perform_click(self):
@@ -437,9 +439,11 @@ class VirtualMouse:
                             print("exiting")
                             exit()
 
-                elif fingers == [0,1,0,0,1]:    
-                    if self.record_timer == 0:
+                elif fingers == [0,1,0,0,1]:
+                    self.record_counter += 1
+                    if self.record_timer == 0 and self.record_counter > 20:
                         self.perform_record()
+                        self.record_counter = 0
                 
 
                 elif all(lmlist[i][2] > 0 for i in [8, 12, 16, 20]):
@@ -455,7 +459,8 @@ class VirtualMouse:
                         self.slide_counter_right = 0
                         if self.slide_counter_left > 6:
                             if self.slide_timer == 0:
-                                self.perform_slide_left() 
+                                self.perform_slide_left()
+                                self.record_counter = 0
                             self.slide_counter_left = 0
                     elif self.curr_x > self.prev_x and abs(self.curr_x - self.prev_x) > self.x_threshold:
                         self.slide_counter_right += 1
@@ -463,6 +468,7 @@ class VirtualMouse:
                         if self.slide_counter_right > 6:
                             if self.slide_timer == 0:
                                 self.perform_slide_right()
+                                self.record_counter = 0
                             self.slide_counter_right = 0 
                             
                             
