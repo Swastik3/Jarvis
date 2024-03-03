@@ -26,8 +26,8 @@ from threading import Thread
 class VirtualMouse:
     def __init__(self):
         self.pTime = 0               # Used to calculate frame rate
-        self.width = 640             # Width of Camera
-        self.height = 480          # Height of Camera
+        self.width = 1000             # Width of Camera
+        self.height = 700          # Height of Camera
         self.frameR = 100            # Frame Rate
         self.smoothening = 8         # self.smoothening Factor
         self.prev_x, self.prev_y = 0, 0   # Previous coordinates
@@ -222,34 +222,48 @@ class VirtualMouse:
             cv2.waitKey(1)
 
     def guitar(self):
-   
+        print("entering guitar mode")
+        timer_duration = 30
+        guitar_sound_timer = 0
         while True:
             success, img = self.cap.read()
             img = self.detector.findHands(img)                       # Finding the hand
             lmlist, bbox = self.detector.findPosition(img)           # Getting position of hand
+            
 
             if len(lmlist)!=0:
 
                 fingers = self.detector.fingersUp()      # Checking if fingers are upwards
                 cv2.rectangle(img, (self.frameR, self.frameR), (self.width - self.frameR, self.height - self.frameR), (255, 0, 255), 2) 
 
-                if fingers[0] == 0 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 0 and fingers[4] == 0:
-                    print("E")
-                    playsound.playsound(r'sounds\e-64kb_0aT5gGDo.mp3')
+                if fingers == [0,1,1,0,0]:
+                    if guitar_sound_timer == 0:
+                        print("E")
+                        Thread(target=playsound.playsound, args=(r'sounds\e-64kb_0aT5gGDo.mp3',)).start()
+                        guitar_sound_timer = timer_duration
 
-                elif fingers[0] == 1 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 1 and fingers[4] == 0:
-                    print("C")
-                    playsound.playsound(r'sounds\c-64kb_tGx61ISi.mp3')
+                elif fingers == [1,1,1,1,0]:
+                    if guitar_sound_timer == 0:
+                        print("C")
+                        Thread(target=playsound.playsound, args=(r'sounds\c-64kb_tGx61ISi.mp3',)).start()
+                        guitar_sound_timer = timer_duration
+                    
 
-                elif fingers[0] == 1 and fingers[1] == 1 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
-                    print("G")
-                    playsound.playsound(r'sounds\g-64kb_kaTudOcK.mp3')
+                elif fingers == [1,1,0,0,1]:
+                    if guitar_sound_timer == 0:
+                        print("G")
+                        Thread(target=playsound.playsound, args=(r'sounds\g-64kb_kaTudOcK.mp3',)).start()
+                        guitar_sound_timer = timer_duration
+                    
 
-                elif fingers[0] == 1 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 0 and fingers[4] == 0:
-                    print("D")
-                    playsound.playsound(r'sounds\d-64kb_4ymAcwfO.mp3')
+                elif fingers == [1,1,1,0,0]:
+                    if guitar_sound_timer == 0:
+                        print("D")
+                        Thread(target=playsound.playsound, args=(r'sounds\d-64kb_4ymAcwfO.mp3',)).start()
+                        guitar_sound_timer = timer_duration
+                    
 
-                elif fingers[0] == 0 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
+                elif fingers == [0,0,0,0,1]:
                     length, img, lineInfo = self.detector.findDistance(16, 20, img)
                     if length > 60:
                         print("exiting")
@@ -262,6 +276,7 @@ class VirtualMouse:
             cv2.putText(img, str(int(fps)), (20, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
             cv2.imshow("Image", img)
             cv2.waitKey(1)
+            guitar_sound_timer = max(0, guitar_sound_timer - 1)
 
     def run(self):
         while True:
@@ -279,6 +294,7 @@ class VirtualMouse:
 
                 fingers = self.detector.fingersUp()      # Checking if fingers are upwards
                 cv2.rectangle(img, (self.frameR, self.frameR), (self.width - self.frameR, self.height - self.frameR), (255, 0, 255), 2)   # Creating boundary box
+                
                 if fingers == [1,1,0,0,0]:     # If fore finger is up and middle finger is down
                     cursor_x = np.interp(x3, (self.frameR,self.width-self.frameR), (0,self.screen_width))
                     cursor_y = np.interp(y3, (self.frameR, self.height-self.frameR), (0, self.screen_height))
@@ -390,10 +406,9 @@ class VirtualMouse:
                     self.arduino_control()
                     time.sleep(0.5)
                     #p.terminate()
-                elif fingers[0]== 0 and fingers[1]==0 and fingers[2]==1 and fingers[3]==1 and fingers[4]==1 and self.gammo==False:
-                    gammo=True
+                elif fingers == [0,0,1,1,1] and self.gammo==False:
+                    self.gammo=True
                     self.guitar()
-                    time.sleep(0.5)
 
                 elif fingers == [0,0,0,0,1]:
                     length, img, lineInfo = self.detector.findDistance(16, 20, img)
