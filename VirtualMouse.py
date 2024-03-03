@@ -16,7 +16,7 @@ from STT import STT
 import subprocess
 from RealtimeSTT import AudioToTextRecorder
 import os
-import keyboard as kbd
+
 
 ### Variables Declaration
 pTime = 0               # Used to calculate frame rate
@@ -153,7 +153,7 @@ def arduino_control():
                 ricko == True
                 time.sleep(0.5)
             
-            elif fingers[0] == 1 and fingers[1] == 1 and fingers[2] == 1 and fingers[3] == 0 and fingers[4] == 0 and shitto == False:
+            elif fingers[0] == 0 and fingers[1] == 1 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 0 and shitto == False:
                 kb.press("h")
                 shitto = True
                 time.sleep(0.5)
@@ -344,11 +344,11 @@ while True:
             #print("ppp") 
             dammo=True
             #subprocess.run(r'"Tera Term.lnk"')
-            #p = subprocess.Popen([r"C:\Users\sange\OneDrive\Documents\teraterm\ttermpro.exe", '/SHOW'])
+            p = subprocess.Popen([r"C:\Users\sange\OneDrive\Documents\teraterm\ttermpro.exe", '/SHOW'])
         
             arduino_control()
             time.sleep(0.5)
-            #p.terminate()
+            p.terminate()
 
         elif fingers[0] == 0 and fingers[1] == 0 and fingers[2] == 0 and fingers[3] == 0 and fingers[4] == 1:
             length, img, lineInfo = detector.findDistance(16, 20, img)
