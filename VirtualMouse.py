@@ -437,6 +437,7 @@ class VirtualMouse:
                     #p = subprocess.Popen([r"C:\Users\sange\OneDrive\Documents\teraterm\ttermpro.exe", '/SHOW'])
                     #self.arduino_control()
                     openWeb("https://participant.turningtechnologies.com/en/join")
+                    time.sleep(0.5)
                     #p.terminate()        
                 elif fingers == [0,0,1,1,1] and self.gammo==False:
                     self.gammo=True
