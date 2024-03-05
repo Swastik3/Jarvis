@@ -20,7 +20,7 @@ import playsound as playsound
 
 from threading import Thread
 import pydub
-
+from clicker import *
 
 ### Variables Declaration
 
@@ -114,7 +114,7 @@ class VirtualMouse:
         Thread(target=slide_left).start()
         self.slide_timer = 30
     
-    def arduino_control(self):
+    """def arduino_control(self):
         ricko = False
         shitto = False
         frameR = 100
@@ -226,8 +226,7 @@ class VirtualMouse:
             cv2.putText(img, str(int(fps)), (20, 50), cv2.FONT_HERSHEY_PLAIN, 3, (255, 0, 0), 3)
             cv2.imshow("Image", img)
             cv2.waitKey(1)
-
-    
+    """
     def guitar(self):
         stack_sound = pydub.AudioSegment.silent(duration=0)
         
@@ -428,16 +427,17 @@ class VirtualMouse:
                     #print("snappp")
                     self.lammo=True    
                     webbrowser.open("https://www.youtube.com/watch?v=hw2eOKy5w9g&pp=ygUQbW91bnRhaW4gZGV3IGRhcg%3D%3D", new=2)
+                    time.sleep(0.5)
 
+                #change here for custom website
                 elif fingers == [1,1,1,1,0] and self.dammo==False:
                     #print("ppp") 
                     self.dammo=True
                     #subprocess.run(r'"Tera Term.lnk"')
                     #p = subprocess.Popen([r"C:\Users\sange\OneDrive\Documents\teraterm\ttermpro.exe", '/SHOW'])
-                
-                    self.arduino_control()
-                    time.sleep(0.5)
-                    #p.terminate()
+                    #self.arduino_control()
+                    openWeb("https://participant.turningtechnologies.com/en/join")
+                    #p.terminate()        
                 elif fingers == [0,0,1,1,1] and self.gammo==False:
                     self.gammo=True
                     self.guitar()

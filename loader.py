@@ -72,7 +72,7 @@ class JarWizApp:
         self.vm.run()
 
 if __name__ == "__main__":
-    root = tk.Tk()
+    root = tk.Tk() 
     app = JarWizApp(root)
     root.mainloop()
 
