@@ -9,10 +9,13 @@ import playsound
 
 
 
+
 class STT():
     def __init__(self,model_size="small.en"):
+      
         print("Loading model...")
         self.model = WhisperModel(model_size, device="cpu", compute_type="int8")
+      
         print("Model loaded")
         tts = gTTS("Recording", lang="en")
         tts.save("tmp/recording.mp3")
@@ -41,6 +44,7 @@ class STT():
         
 
 def main():
+    checker =False
     stt = STT()
     stt.record_audio()
     time1 = time.time()
