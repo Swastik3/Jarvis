@@ -1,6 +1,5 @@
 import webbrowser
 from pynput.keyboard import Key, Controller
-import mouse
 import pyautogui
 import time
 

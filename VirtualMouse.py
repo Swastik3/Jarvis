@@ -41,7 +41,7 @@ class VirtualMouse:
         self.speech = STT()
 
         if os.name == 'nt': self.cap = cv2.VideoCapture(0)
-        else: self.cap = cv2.Video.capture(1)   # Getting video feed from the webcam
+        else: self.cap = cv2.VideoCapture(1)   # Getting video feed from the webcam
         self.cap.set(3, self.width)           # Adjusting size
         self.cap.set(4, self.height)
 
