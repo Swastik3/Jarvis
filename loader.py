@@ -44,7 +44,7 @@ class JarWizApp:
         canvas_height = self.video_canvas.winfo_reqheight()
 
         # Center the button in the middle of the video canvas
-        self.start_button = Button(master, text="Start Video", command=self.start_video_thread, bg="black", fg="white")
+        self.start_button = Button(master, text="Start JarWiz", command=self.start_video_thread, bg="black", fg="white")
         self.start_button.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
 
         self.vm = VirtualMouse()

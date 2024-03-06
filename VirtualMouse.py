@@ -70,6 +70,7 @@ class VirtualMouse:
         self.record_timer = 0
         self.slide_timer = 0
         self.exit_timer = 0
+        self.openWeb_timer = 0
         self.can_double_click = True
         
         self.record_counter = 0
@@ -85,6 +86,12 @@ class VirtualMouse:
         print("right clicking")
         Thread(target=action.click, args=("right",)).start()
         self.right_click_timer = 20
+    
+    def perform_openWeb(self,url):
+        print("right clicking")
+        Thread(target=openWeb, args=(url,)).start()
+        self.openWeb_timer = 20
+       
     
     def perform_record(self):
         print("recording")
@@ -427,7 +434,7 @@ class VirtualMouse:
                     #print("snappp")
                     self.lammo=True    
                     webbrowser.open("https://www.youtube.com/watch?v=hw2eOKy5w9g&pp=ygUQbW91bnRhaW4gZGV3IGRhcg%3D%3D", new=2)
-                    time.sleep(0.5)
+                    
 
                 #change here for custom website
                 elif fingers == [1,1,1,1,0] and self.dammo==False:
@@ -436,8 +443,8 @@ class VirtualMouse:
                     #subprocess.run(r'"Tera Term.lnk"')
                     #p = subprocess.Popen([r"C:\Users\sange\OneDrive\Documents\teraterm\ttermpro.exe", '/SHOW'])
                     #self.arduino_control()
-                    openWeb("https://participant.turningtechnologies.com/en/join")
-                    time.sleep(0.5)
+                    self.perform_openWeb("https://participant.turningtechnologies.com/en/join")
+                 
                     #p.terminate()        
                 elif fingers == [0,0,1,1,1] and self.gammo==False:
                     self.gammo=True
